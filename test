@@ -2,10 +2,10 @@ local RunService = game:GetService("RunService")
 
 -- Define your moves
 local Moves = {
-    "Big Bang Kamehameha",
+    "Deadly Dance",
     "Deadly Dance",
     "Big Bang Kamehameha",
-    "Blaster Meteor",
+    "Big Bang Kamehameha",
     "",
     "",
     "",
