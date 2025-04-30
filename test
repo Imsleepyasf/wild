@@ -1,3 +1,5 @@
+local RunService = game:GetService("RunService")
+
 -- Define your moves
 local Moves = {
     "Big Bang Kamehameha",
@@ -18,6 +20,7 @@ if game.PlaceId == 536102540 then
 end
 
 if game.PlaceId == 535527772 then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/npcs"))()
 -- References
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -54,10 +57,6 @@ end
 
 if game.PlaceId == 3565304751 then
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/queue", true))()
-end
-
-if game.PlaceId == 535527772 then
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/npcs"))()
 end
 
 game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
