@@ -1,0 +1,65 @@
+local Timer = 0  -- Initialize the Timer variable
+
+-- Stopwatch GUI function
+local function createStopwatch()
+    -- Create the GUI elements
+    local stopwatchGui = Instance.new("ScreenGui")
+    local frame = Instance.new("Frame")
+    local textLabel = Instance.new("TextLabel")
+
+    -- Set up the GUI container
+    stopwatchGui.Name = "Stopwatch"
+    stopwatchGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    stopwatchGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- Set up the frame
+    frame.Parent = stopwatchGui
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    frame.Size = UDim2.new(0, 100, 0, 30)
+    frame.Position = UDim2.new(1, -110, 1, -60)  -- Positioned at bottom-right
+
+    -- Set up the text label
+    textLabel.Parent = frame
+    textLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.BackgroundTransparency = 1.000
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Font = Enum.Font.ArialBold
+    textLabel.Text = "Timer: 0"
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextSize = 18
+    textLabel.TextWrapped = true
+
+    -- Timer loop that increments every second
+    while true do
+        wait(1)  -- Wait for 1 second
+        Timer = Timer + 1  -- Increment by 1 second
+        textLabel.Text = "Timer: " .. Timer  -- Update the label
+
+        -- If Timer reaches 150 seconds, teleport to new place (ID: 536102540)
+        if Timer >= 150 then
+            game:GetService("TeleportService"):Teleport(536102540, game.Players.LocalPlayer)
+            break  -- Stop the loop to prevent further timer updates
+        end
+    end
+end
+
+-- Start stopwatch asynchronously to not block the rest of the script
+task.spawn(function()
+    createStopwatch()
+end)
+
+-- Delay in seconds
+local delayDuration = 5 -- change this to however many seconds you want to delay
+
+-- Delay execution of the rest of the script
+print("⏳ Delaying script for " .. delayDuration .. " seconds...")
+task.wait(delayDuration)
+print("✅ Delay complete. Continuing script...")
+
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+-- Load the first script
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/test"))()
