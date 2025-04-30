@@ -14,18 +14,6 @@ if game.PlaceId == 3565304751 then
         -- Teleport to target spot
         hrp.CFrame = targetCFrame
 
-        -- Start timer
-        local startTime = tick()
-
-        -- Wait 3 seconds before checking
-        wait(3)
-
-        -- If 30+ seconds passed, teleport to next place
-        if tick() - startTime >= 30 then
-            game:GetService("TeleportService"):Teleport(536102540, plr)
-            break -- optional, so it stops trying after teleport request
-        end
-
         wait(1) -- slight delay to avoid unnecessary tight loop
     end
 end
