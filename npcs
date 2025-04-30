@@ -1,6 +1,6 @@
 local npcNames = {
-    "Shantza", "Damon", "Sorrel", "Caway", "Paparoni", "Napapa", "The Preechio", "Methiop",
-    "Tien Shinhan", "Krillin", "Master Roshi", "Murichim", "Rabanra", "Murisam", "Vuon", "Zarbuto",
+    "Shantza", "Damon", "Sorrel", "Caway", "Paparoni", "Napapa", "The Preecho", "Methiop",
+    "Tien Shinhan", "Krillin", "Roshi", "Murichim", "Rabanra", "Murisam", "Vuon", "Zarbuto",
     "Ganos", "Roselle", "Katopesla", "Kahseral", "Ribrianne", "Cocotte", "Lavender", "Bergamo",
     "Frost", "Dyspo", "Maji Kayo", "Piccolo", "Hit", "Android 18 FP", "Cabba", "Android 17 FP",
     "Gohan", "Caulifla", "Kale", "Golden Frieza", "Vegeta", "Kefla", "Goku", "Toppo", -- All pre-Jiren NPCs
