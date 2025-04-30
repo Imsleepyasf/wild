@@ -64,4 +64,24 @@ end
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/Stopwatch"))()
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/noclip%2C%20senzu.%20low"))()
+-- No-clip
+local noclip = true
+RunService.Stepped:Connect(function()
+    if noclip and Character then
+        for _, part in pairs(Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- Eat Senzu Loop
+task.spawn(function()
+    while true do
+        if game.PlaceId == 535527772 then
+            game.Players.LocalPlayer.Backpack.ServerTraits.EatSenzu:FireServer(true)
+        end
+        task.wait(0.5)
+    end
+end)
