@@ -1,0 +1,64 @@
+    local npcNames = {
+        "Shantza", "Damon", "Sorrel", "Caway", "Paparoni", "Napapa", "The Preechio", "Methiop",
+        "Tien", "Krillin", "Master Roshi", "Murichim", "Rabanra", "Murisam", "Vuon", "Zarbuto",
+        "Ganos", "Roselle", "Katopesla", "Kahseral", "Ribrianne", "Cocotte", "Lavender", "Bergamo",
+        "Frost", "Dyspo", "Maji Kayo", "Piccolo", "Hit", "Android 18", "Cabba", "Android 17",
+        "Gohan", "Caulifla", "Kale", "Golden Frieza", "Vegeta", "Kefla", "Goku", "Toppo", -- All pre-Jiren NPCs
+    }
+
+    local Char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local HumanoidRootPart = Char:WaitForChild("HumanoidRootPart")
+
+    local function smoothLookAt(targetPosition)
+        local targetCFrame = CFrame.new(HumanoidRootPart.Position, targetPosition)
+        local currentCFrame = HumanoidRootPart.CFrame
+        local rotationSpeed = 0.1
+        local newCFrame = currentCFrame:Lerp(targetCFrame, rotationSpeed)
+        HumanoidRootPart.CFrame = CFrame.new(newCFrame.Position, targetPosition)
+    end
+
+    local function isAlive(npc)
+        return npc and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0
+    end
+
+    local function waitForAndKill(npc)
+        if npc and npc:FindFirstChild("HumanoidRootPart") and npc:FindFirstChild("Humanoid") then
+            local humanoid = npc.Humanoid
+            while humanoid.Health > 0 do
+                local distance = (HumanoidRootPart.Position - npc.HumanoidRootPart.Position).Magnitude
+                smoothLookAt(npc.HumanoidRootPart.Position)
+
+                if distance > 3 then
+                    local targetCFrame = CFrame.new(npc.HumanoidRootPart.Position)
+                    local newCFrame = HumanoidRootPart.CFrame:Lerp(targetCFrame, 0.1)
+                    newCFrame = CFrame.new(newCFrame.Position.X, npc.HumanoidRootPart.Position.Y, newCFrame.Position.Z)
+                    HumanoidRootPart.CFrame = newCFrame
+                end
+                task.wait()
+            end
+        end
+    end
+
+    task.spawn(function()
+        while true do
+            -- Recheck and kill all non-Jiren NPCs
+            for _, npcName in ipairs(npcNames) do
+                local npc = workspace.Live:FindFirstChild(npcName)
+                if isAlive(npc) then
+                    waitForAndKill(npc)
+                end
+            end
+
+            -- Check for Jiren
+            local jiren = workspace.Live:FindFirstChild("Jiren")
+            if jiren then
+                waitForAndKill(jiren)
+                print("Jiren defeated. Script complete.")
+                break
+            else
+                print("Jiren not found yet. Rechecking NPCs...")
+                task.wait(2)
+            end
+        end
+    end)
+end
