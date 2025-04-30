@@ -17,8 +17,8 @@ if game.PlaceId == 3565304751 then
         -- Start timer
         local startTime = tick()
 
-        -- Wait 20 seconds before checking
-        wait(20)
+        -- Wait 3 seconds before checking
+        wait(3)
 
         -- If 30+ seconds passed, teleport to next place
         if tick() - startTime >= 30 then
