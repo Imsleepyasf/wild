@@ -1,0 +1,26 @@
+    local plr = game.Players.LocalPlayer
+    local char = plr.Character or plr.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Target CFrame with precise position + rotation
+    local targetCFrame = CFrame.new(
+        -52.560676575, 237.809600830, 570.160156250,
+        0.999978662, 0.000000000, -0.006540357,
+        0.000000000, 1.000000000,  0.000000000,
+        0.006540357, 0.000000000,  0.999978662
+    )
+
+    -- Teleport player
+    hrp.CFrame = targetCFrame
+
+    -- Timer to check if player has been in the place for more than 30 seconds
+    local startTime = tick()
+
+    -- Wait for 30 seconds
+    wait(30)
+
+    -- Check if player has been in the place for more than 30 seconds
+    if tick() - startTime > 30 then
+        -- Teleport to new place (ID: 536102540)
+        game:GetService("TeleportService"):Teleport(536102540, plr)
+    end
