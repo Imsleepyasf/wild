@@ -16,8 +16,8 @@
     -- Timer to check if player has been in the place for more than 30 seconds
     local startTime = tick()
 
-    -- Wait for 30 seconds
-    wait(30)
+    -- Wait for 20 seconds
+    wait(20)
 
     -- Check if player has been in the place for more than 30 seconds
     if tick() - startTime > 30 then
