@@ -1,0 +1,80 @@
+--// Services
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local Player = Players.LocalPlayer
+local ServerTraits = Player.Backpack:WaitForChild("ServerTraits")
+local ChatGui = Player.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui")
+
+--// NPC list (All pre-Jiren NPCs)
+local npcNames = {
+    "Shantza", "Prum", "Damon", "Sorrel", "Caway", "Paparoni", "Napapa", "The Preecho", "Methiop",
+    "Tien Shinhan", "Krillin", "Roshi", "Murichim", "Rabanra", "Murisam", "Vuon", "Zarbuto",
+    "Ganos", "Roselle", "Katopesla", "Kahseral", "Ribrianne", "Cocotte", "Lavender", "Bergamo",
+    "Frost", "Dyspo", "Maji Kayo", "Piccolo", "Hit", "Android 18 FP", "Cabba", "Android 17 FP",
+    "Gohan", "Caulifla", "Kale", "Golden Frieza", "Vegeta", "Kefla", "Goku", "Toppo"
+}
+
+--// Helper: Check if all NPCs are dead
+local function allNPCsDefeated()
+    for _, name in ipairs(npcNames) do
+        local npc = workspace.Live:FindFirstChild(name)
+        if npc and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+            return false
+        end
+    end
+    return true
+end
+
+--// Helper: Wait for specific text to appear
+local function WaitForText(expected, timeout)
+    local start = tick()
+    while tick() - start < (timeout or 10) do
+        if ChatGui.Visible and ChatGui.TextLabel.Text == expected then
+            return true
+        end
+        task.wait(0.2)
+    end
+    return false
+end
+
+--// Step 1: Wait for all NPCs to die
+repeat task.wait(1) until allNPCsDefeated()
+
+--// Step 2: Wait for Jiren to spawn and die
+repeat task.wait(1) until workspace.Live:FindFirstChild("Jiren")
+repeat task.wait(1) until not workspace.Live:FindFirstChild("Jiren")
+
+--// Step 3: Try talking to Zeno until it succeeds
+local function TalkToZeno()
+    local zeno = workspace:FindFirstChild("FriendlyNPCs") and workspace.FriendlyNPCs:FindFirstChild("Zeno")
+    if not zeno then return false end
+
+    -- Start conversation
+    ServerTraits.ChatStart:FireServer(zeno)
+
+    -- Wait for first message
+    if not WaitForText("Sugoi ne. Now you can get a prize with the super dragon balls!", 5) then
+        return false
+    end
+    task.wait(0.5)
+    ServerTraits.ChatAdvance:FireServer({"Next"})
+
+    -- Wait for reward options
+    if not WaitForText("What are you gonna pick? Prestige your character? Remove the level cap? or get the max zenni?", 5) then
+        return false
+    end
+    task.wait(0.5)
+    ServerTraits.ChatAdvance:FireServer({"100k Zenni"})
+
+    return true
+end
+
+-- Retry Zeno interaction until it succeeds
+while not TalkToZeno() do
+    warn("❌ Failed to talk to Zeno. Retrying in 3 seconds...")
+    task.wait(3)
+end
+
+--// Step 4: Teleport
+task.wait(2)
+TeleportService:Teleport(536102540, Player)
