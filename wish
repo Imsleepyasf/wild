@@ -1,72 +1,54 @@
---// Variables
 local Player = game.Players.LocalPlayer
-local Teleporting = false
+local TeleportService = game:GetService("TeleportService")
 
---// Functions
-local function WaitTill(instance, Text)
-    repeat task.wait() until (instance.Text == Text and Player.PlayerGui.HUD.Bottom.ChatGui.Visible == true)
-end
+local npcNames = {
+    "Prum", "Shantza", "Damon", "Sorrel", "Caway", "Paparoni", "Napapa", "The Preecho", "Methiop",
+    "Tien Shinhan", "Krillin", "Roshi", "Murichim", "Rabanra", "Murisam", "Vuon", "Zarbuto",
+    "Ganos", "Roselle", "Katopesla", "Kahseral", "Ribrianne", "Cocotte", "Lavender", "Bergamo",
+    "Frost", "Dyspo", "Maji Kayo", "Piccolo", "Hit", "Android 18 FP", "Cabba", "Android 17 FP",
+    "Gohan", "Caulifla", "Kale", "Golden Frieza", "Vegeta", "Kefla", "Goku", "Toppo",
+    "Jiren"
+}
 
-local function Talk(NPC, Content, WaitTime, Texts, WaitForText)
-    if not Player.Backpack:FindFirstChild("ServerTraits") then
-        Player.Backpack:WaitForChild("ServerTraits", 30)
-    end
-
-    -- Start chat
-    Player.Backpack.ServerTraits.ChatStart:FireServer(workspace.FriendlyNPCs[NPC])
-
-    for i = 1, #Content do
-        if WaitForText then
-            WaitTill(Player.PlayerGui.HUD.Bottom.ChatGui.TextLabel, Texts[i])
-            task.wait(WaitTime)
-        else
-            task.wait(WaitTime + 0.25)
+-- Function to check if all NPCs are dead
+local function areAllNPCsDead()
+    for _, name in ipairs(npcNames) do
+        local npc = workspace:FindFirstChild(name)
+        if npc and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+            return false
         end
-
-        Player.Backpack.ServerTraits.ChatAdvance:FireServer({Content[i]})
     end
+    return true
 end
 
--- Function to check if Jiren is dead
-local function IsJirenDead()
-    local jiren = workspace.Live:FindFirstChild("Jiren")
-    return jiren == nil or (jiren and jiren:FindFirstChild("Humanoid") and jiren.Humanoid.Health <= 0)
+-- Wait until all NPCs are dead
+while not areAllNPCsDead() do
+    task.wait(1)
 end
 
--- Function to talk to Zeno after Jiren is dead
-local function TalkToZeno()
-    if IsJirenDead() then
-        print("Jiren is dead, talking to Zeno...")
-        
-        Talk(
-            "Zeno", -- NPC Name
-            {"Sugoi ne. Now you can get a prize with the super dragon balls!"}, -- First message
-            1, -- Wait time between messages
-            {"Sugoi ne. Now you can get a prize with the super dragon balls!"}, -- Text to wait for
-            true -- Wait for text
-        )
+-- Teleport to Zenoh
+local char = Player.Character or Player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+hrp.CFrame = CFrame.new(-199.933624268, 95.504989624, -32.255367279, -0.773004472, 0, 0.634400606, 0, 1, 0, -0.634400606, 0, -0.773004472)
 
-        -- Wait for the second prompt and respond
-        Talk(
-            "Zeno", -- NPC Name
-            {"100k Zenni"}, -- Choose the 100k Zenni option
-            1, -- Wait time between responses
-            {"What are you gonna pick? Prestige your character? Remove the level cap? or get the max zenni?"}, -- Text to wait for
-            true -- Wait for text
-        )
+-- Wait for ServerTraits to load
+repeat task.wait() until Player:FindFirstChild("Backpack") and Player.Backpack:FindFirstChild("ServerTraits")
+local ST = Player.Backpack.ServerTraits
 
-        print("Finished talking to Zeno.")
-        -- After talking to Zeno, teleport to a new place (Place ID: 536102540)
-        game:GetService("TeleportService"):Teleport(536102540, game.Players.LocalPlayer)
-    else
-        print("Jiren is not dead yet. Retrying...")
-    end
-end
+-- Talk to Zenoh
+task.wait(1)
+ST.ChatAdvance:FireServer({"Sugoi ne. Now you can get a prize with the super dragon balls!"})
+task.wait(0.45)
+ST.ChatAdvance:FireServer({"What are you gonna pick? Prestige your character? Remove the level cap? or get the max zenni?"})
+task.wait(0.45)
+ST.ChatAdvance:FireServer({"100k Zenni"})
+task.wait(0.45)
+ST.ChatAdvance:FireServer({"This will give you 100,000 Zenni, are you sure?"})
+task.wait(0.45)
+ST.ChatAdvance:FireServer({"Yes"})
+task.wait(0.45)
+ST.ChatAdvance:FireServer({"k"})
 
--- Continuous attempt to talk to Zeno
-task.spawn(function()
-    while true do
-        TalkToZeno()  -- Try talking to Zeno
-        task.wait(5)  -- Wait 5 seconds before checking again
-    end
-end)
+-- Wait 5 seconds and teleport
+task.wait(5)
+TeleportService:Teleport(3565304751, Player)
