@@ -12,16 +12,6 @@ local Moves = {
     ""
 }
 
-if game.PlaceId == 3565304751 then
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/queue", true))()
-end
-
-if game.PlaceId == 535527772 then
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/npcs"))()
-end
-
-game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
-
 if game.PlaceId == 536102540 then
     local TeleportService = game:GetService("TeleportService")
     TeleportService:Teleport(3565304751, game.Players.LocalPlayer)
@@ -61,6 +51,16 @@ task.spawn(function()
     end
 end)
 end
+
+if game.PlaceId == 3565304751 then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/queue", true))()
+end
+
+if game.PlaceId == 535527772 then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/npcs"))()
+end
+
+game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/Stopwatch"))()
 
