@@ -1,0 +1,67 @@
+-- Define your moves
+local Moves = {
+    "Anger Rush",
+    "Deadly Dance",
+    "Big Bang Kamehameha",
+    "Blaster Meteor",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+}
+
+if game.PlaceId == 3565304751 then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/queue", true))()
+end
+
+if game.PlaceId == 535527772 then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/npcs"))()
+end
+
+game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
+
+if game.PlaceId == 536102540 then
+    local TeleportService = game:GetService("TeleportService")
+    TeleportService:Teleport(3565304751, game.Players.LocalPlayer)
+end
+
+if game.PlaceId == 535527772 then
+-- References
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Backpack = LocalPlayer.Backpack
+local Live = workspace.Live
+local Timer = 0
+
+-- Use Moves
+local function useMoves()
+    for _, moveName in pairs(Moves) do
+        if moveName ~= "" then
+            local move = Backpack:FindFirstChild(moveName)
+            if move then
+                move.Parent = Character
+                task.wait(0.1)
+                move:Activate()
+                task.wait(0.2)
+                move.Parent = Backpack
+                task.wait(0.1)
+            end
+        end
+    end
+end
+
+-- Use moves loop
+task.spawn(function()
+    while task.wait(0.5) do
+        useMoves()
+    end
+end)
+end
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/Stopwatch"))()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/noclip%2C%20senzu.%20low"))()
