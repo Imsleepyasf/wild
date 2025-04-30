@@ -1,0 +1,32 @@
+-- References
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Backpack = LocalPlayer.Backpack
+local Live = workspace.Live
+local Timer = 0
+
+-- Use Moves
+local function useMoves()
+    for _, moveName in pairs(Moves) do
+        if moveName ~= "" then
+            local move = Backpack:FindFirstChild(moveName)
+            if move then
+                move.Parent = Character
+                task.wait(0.1)
+                move:Activate()
+                task.wait(0.2)
+                move.Parent = Backpack
+                task.wait(0.1)
+            end
+        end
+    end
+end
+
+-- Use moves loop
+task.spawn(function()
+    while task.wait(0.5) do
+        useMoves()
+    end
+end)
