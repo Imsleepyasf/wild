@@ -28,38 +28,83 @@ if game.PlaceId == 536102540 then
 end
 
 if game.PlaceId == 535527772 then
--- References
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Backpack = LocalPlayer.Backpack
-local Live = workspace.Live
-local Timer = 0
+    -- References
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local LocalPlayer = Players.LocalPlayer
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local Backpack = LocalPlayer.Backpack
+    local Live = workspace.Live
+    local Timer = 0
 
--- Use Moves
-local function useMoves()
-    for _, moveName in pairs(Moves) do
-        if moveName ~= "" then
-            local move = Backpack:FindFirstChild(moveName)
-            if move then
-                move.Parent = Character
-                task.wait(0.1)
-                move:Activate()
-                task.wait(0.2)
-                move.Parent = Backpack
-                task.wait(0.1)
+    -- Define NPC names (excluding Jiren)
+    local npcNames = {
+        "Shantza", "Prum", "Damon", "Sorrel", "Caway", "Paparoni", "Napapa", "The Preecho", "Methiop",
+        "Tien Shinhan", "Krillin", "Roshi", "Murichim", "Rabanra", "Murisam", "Vuon", "Zarbuto",
+        "Ganos", "Roselle", "Katopesla", "Kahseral", "Ribrianne", "Cocotte", "Lavender", "Bergamo",
+        "Frost", "Dyspo", "Maji Kayo", "Piccolo", "Hit", "Android 18 FP", "Cabba", "Android 17 FP",
+        "Gohan", "Caulifla", "Kale", "Golden Frieza", "Vegeta", "Kefla", "Goku", "Toppo", -- All pre-Jiren NPCs
+    }
+
+    -- Define Moves
+    local Moves = {
+        "Anger Rush", "Deadly Dance", "Big Bang Kamehameha", "Blaster Meteor", 
+        "", "", "", "", "", ""
+    }
+
+    -- Use Moves
+    local function useMoves()
+        for _, moveName in pairs(Moves) do
+            if moveName ~= "" then
+                local move = Backpack:FindFirstChild(moveName)
+                if move then
+                    move.Parent = Character
+                    task.wait(0.1)
+                    move:Activate()
+                    task.wait(0.2)
+                    move.Parent = Backpack
+                    task.wait(0.1)
+                end
             end
         end
     end
-end
 
--- Use moves loop
-task.spawn(function()
-    while task.wait(0.5) do
-        useMoves()
+    -- Check if all NPCs (except Jiren) are dead
+    local function areAllNpcsDead()
+        for _, npcName in ipairs(npcNames) do
+            local npc = workspace.Live:FindFirstChild(npcName)
+            if npc and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+                return false  -- Found an NPC that is not dead
+            end
+        end
+        return true  -- All NPCs are dead
     end
-end)
+
+    -- Function to check if Jiren is alive
+    local function isJirenAlive()
+        local jiren = workspace.Live:FindFirstChild("Jiren")
+        return jiren and jiren:FindFirstChild("Humanoid") and jiren.Humanoid.Health > 0
+    end
+
+    -- Use moves loop
+    local isJirenDead = false  -- Flag to track if Jiren is defeated
+    task.spawn(function()
+        while task.wait(0.5) do
+            if areAllNpcsDead() then  -- Only start checking for Jiren after all other NPCs are dead
+                if isJirenAlive() then
+                    -- Jiren is alive, continue using moves
+                    useMoves()
+                else
+                    -- Jiren is defeated, stop using moves
+                    if not isJirenDead then
+                        print("Jiren defeated. Stopping moves.")
+                        isJirenDead = true
+                    end
+                    break  -- Exit the loop
+                end
+            end
+        end
+    end)
 end
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/Stopwatch"))()
