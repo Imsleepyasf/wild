@@ -1,5 +1,5 @@
 -- Delay in seconds
-local delayDuration = 5 -- change this to however many seconds you want to delay
+local delayDuration = 10 -- change this to however many seconds you want to delay
 
 -- Delay execution of the rest of the script
 print("⏳ Delaying script for " .. delayDuration .. " seconds...")
