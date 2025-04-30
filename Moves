@@ -9,7 +9,7 @@ local Timer = 0
 
 -- Use Moves
 local function useMoves()
-    for _, moveName in pairs(Moves) do
+    for _, moveName in pairs(_G.Moves) do  -- Access Moves from _G
         if moveName ~= "" then
             local move = Backpack:FindFirstChild(moveName)
             if move then
