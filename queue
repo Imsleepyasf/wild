@@ -1,3 +1,4 @@
+if game.PlaceId == 3565304751 then
     local plr = game.Players.LocalPlayer
     local char = plr.Character or plr.CharacterAdded:Wait()
     local hrp = char:WaitForChild("HumanoidRootPart")
@@ -24,3 +25,4 @@
         -- Teleport to new place (ID: 536102540)
         game:GetService("TeleportService"):Teleport(536102540, plr)
     end
+end
