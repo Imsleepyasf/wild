@@ -50,5 +50,5 @@ task.wait(0.45)
 ST.ChatAdvance:FireServer({"k"})
 
 -- Wait 5 seconds and teleport
-task.wait(150)
+task.wait(3)
 TeleportService:Teleport(3565304751, Player)
