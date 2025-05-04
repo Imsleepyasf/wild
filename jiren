@@ -31,5 +31,3 @@ if player.Character then
     onCharacterSpawn(player.Character)
 end
 player.CharacterAdded:Connect(onCharacterSpawn)
-
-print("✅ Your character will always reappear at the locked position after any death/reset.")
