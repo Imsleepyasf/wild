@@ -1,0 +1,301 @@
+-- Define your moves
+local Moves = {
+    "Anger Rush",
+    "Deadly Dance",
+    "Big Bang Kamehameha",
+    "Blaster Meteor",
+    "",
+    "",
+    "",
+    "",
+    "", -- Empty if you have no move there
+    ""
+}
+
+game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
+
+
+if game.PlaceId == 536102540 then
+    local TeleportService = game:GetService("TeleportService")
+    TeleportService:Teleport(3565304751, game.Players.LocalPlayer)
+end
+
+-- References
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Backpack = LocalPlayer.Backpack
+local Live = workspace.Live
+local Timer = 0
+
+-- Function to properly use moves
+local function useMoves()
+    for _, moveName in pairs(Moves) do
+        if moveName ~= "" then
+            local move = Backpack:FindFirstChild(moveName)
+            if move then
+                move.Parent = Character -- Equip move by moving it to Character
+                task.wait(0.1) -- Small wait so Roblox can register it
+                move:Activate()
+                task.wait(0.2) -- Let the move actually go off
+                move.Parent = Backpack -- Put back to backpack
+                task.wait(0.1) -- Short pause between moves
+            end
+        end
+    end
+end
+
+-- Main Loop to use moves continuously
+task.spawn(function()
+    while task.wait(0.5) do
+        useMoves()
+    end
+end)
+
+-- Stopwatch functionality
+local function createStopwatch()
+    local stopwatchGui = Instance.new("ScreenGui")
+    local frame = Instance.new("Frame")
+    local textLabel = Instance.new("TextLabel")
+
+    stopwatchGui.Name = "Stopwatch"
+    stopwatchGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    stopwatchGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    frame.Parent = stopwatchGui
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+    frame.BackgroundTransparency = 0.5 -- Semi-transparent background
+    frame.Size = UDim2.new(0, 100, 0, 30) -- Smaller size for stopwatch
+    frame.Position = UDim2.new(1, -110, 1, -60)  -- Bottom-right position
+
+    textLabel.Parent = frame
+    textLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background (for text)
+    textLabel.BackgroundTransparency = 1.000
+    textLabel.Size = UDim2.new(1, 0, 1, 0) -- Take full size of frame
+    textLabel.Font = Enum.Font.ArialBold
+    textLabel.Text = "Timer: 0"
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+    textLabel.TextSize = 18 -- Smaller text size
+    textLabel.TextWrapped = true
+
+    -- Update Timer every second
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if Timer < 10000 then
+            Timer = math.floor(Timer + 1)
+            textLabel.Text = "Timer: " .. Timer
+        end
+        if Timer >= 10000 then
+            game:GetService("TeleportService"):Teleport(3565304751, LocalPlayer)
+        end
+    end)
+end
+
+-- Start Stopwatch
+createStopwatch()
+
+-- Broly Following and Movement
+if game.PlaceId == 2050207304 then
+    local B = game.Workspace.Live:WaitForChild("Broly BR")
+    local Char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local HumanoidRootPart = Char:WaitForChild("HumanoidRootPart")
+
+    -- Function to smoothly face Broly with Lerp
+    local function smoothLookAt(targetPosition)
+        local targetCFrame = CFrame.new(HumanoidRootPart.Position, targetPosition)
+        local currentCFrame = HumanoidRootPart.CFrame
+        local rotationSpeed = 0.1  -- Slow enough to be smooth, but fast enough to not be too slow
+        -- Smoothly rotate towards the target position
+        local newCFrame = currentCFrame:Lerp(targetCFrame, rotationSpeed)
+        HumanoidRootPart.CFrame = CFrame.new(newCFrame.Position, targetPosition)
+    end
+
+    -- Function to move towards Broly with Lerp for smoother movement
+    local function followBroly()
+        game:GetService("RunService").RenderStepped:Connect(function()
+            if B and B:FindFirstChild("HumanoidRootPart") then
+                -- Check if Broly is dead
+                local brolyHumanoid = B:FindFirstChild("Humanoid")
+                if brolyHumanoid and brolyHumanoid.Health <= 0 then
+                    game:GetService("TeleportService"):Teleport(3565304751, LocalPlayer)
+                    return -- Stop following after teleport
+                end
+                
+                -- Calculate distance from Broly
+                local distance = (HumanoidRootPart.Position - B.HumanoidRootPart.Position).Magnitude
+                
+                -- Smoothly look at Broly
+                smoothLookAt(B.HumanoidRootPart.Position)
+
+                -- If we are far from Broly, move towards him smoothly with Lerp
+                if distance > 3 then
+                    local targetCFrame = CFrame.new(B.HumanoidRootPart.Position)
+                    local lerpSpeed = 0.1
+                    local newCFrame = HumanoidRootPart.CFrame:Lerp(targetCFrame, lerpSpeed)
+                    
+                    -- Keep the character at the same height as Broly
+                    newCFrame = CFrame.new(newCFrame.Position.X, B.HumanoidRootPart.Position.Y, newCFrame.Position.Z)
+
+                    -- Apply the new position smoothly
+                    HumanoidRootPart.CFrame = newCFrame
+                end
+            end
+        end)
+    end
+
+    -- Start following Broly if Broly and character exist
+    if B and Char then
+        followBroly()
+    end
+end
+
+-- No-clip functionality
+local noclip = true
+RunService.Stepped:Connect(function()
+    if noclip and Character then
+        for _, part in pairs(Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- Eating Senzu continuously
+task.spawn(function()
+    while true do
+        if game.PlaceId == 2050207304 then
+            game.Players.LocalPlayer.Backpack.ServerTraits.EatSenzu:FireServer(true)
+        end
+        task.wait(0.5) -- Senzu eating interval
+    end
+end)
+
+-- Broly teleport if dead or specific place
+if game.PlaceId == 3565304751 then
+    game:GetService("RunService").Heartbeat:Connect(function()
+        game:GetService("TweenService"):Create(
+            LocalPlayer.Character.HumanoidRootPart,
+            TweenInfo.new(0.01, Enum.EasingStyle.Linear),
+            {
+                CFrame = CFrame.new(
+                    -38.2405701, 238.057281, -588.184998,
+                    0.999807239, -4.3513135e-09, 0.0196339097,
+                    4.84396789e-09, 1, -2.50444732e-08,
+                    -0.0196339097, 2.51347512e-08, 0.999807239
+                )
+            }
+        ):Play()
+    end)
+end
+
+repeat
+    task.wait()
+until game:IsLoaded()
+repeat
+    task.wait()
+until game.Players.LocalPlayer.Character
+function getVars()
+    plr = game.Players.LocalPlayer
+    char = plr.Character
+    hrp = char:WaitForChild("HumanoidRootPart")
+    bp = plr:WaitForChild("Backpack")
+    st = bp:FindFirstChild("ServerTraits")
+end
+
+
+-- Automatically apply low graphics settings when the script is executed
+
+local function enableLowGFX()
+    local g = game
+    local w = g.Workspace
+    local l = g.Lighting
+    local t = w.Terrain
+
+    -- Set terrain settings to minimal
+    t.WaterWaveSize = 0
+    t.WaterWaveSpeed = 0
+    t.WaterReflectance = 0
+    t.WaterTransparency = 1  -- Make water invisible for maximum performance
+
+    -- Set lighting settings to minimal (without making it too dark)
+    l.GlobalShadows = false
+    l.FogEnd = 9e9  -- No fog
+    l.Brightness = 0.5  -- Slightly dim, but not too dark
+    l.Ambient = Color3.fromRGB(128, 128, 128)  -- Neutral ambient lighting
+    l.OutdoorAmbient = Color3.fromRGB(128, 128, 128)  -- Neutral outdoor lighting
+
+    -- Set rendering quality to minimum
+    settings().Rendering.QualityLevel = "Level01"  -- Lowest rendering quality
+    settings().Rendering.SmoothLighting = false    -- No smooth lighting
+    settings().Rendering.SunRaysQuality = "None"   -- No sun rays
+    settings().Rendering.TextureQuality = "Low"    -- Lowest texture quality
+    settings().Rendering.ShadowQuality = "Low"     -- No shadows
+    settings().Rendering.ParticleQuality = "Low"   -- No particles
+
+    -- Adjust game objects for minimal performance
+    for i, v in pairs(g:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+            v.Material = "Plastic"
+            v.Reflectance = 0
+            v.Transparency = 1  -- Make all parts fully transparent (not visible)
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1  -- Make decals and textures invisible
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Lifetime = NumberRange.new(0)  -- Stop particle emitters
+        elseif v:IsA("Explosion") then
+            v.BlastPressure = 1
+            v.BlastRadius = 1  -- Disable explosions' effects
+        elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+            v.Enabled = false  -- Disable fire, spotlight, smoke, sparkles
+        elseif v:IsA("MeshPart") then
+            v.Material = "Plastic"
+            v.Reflectance = 0
+            v.TextureID = 10385902758728957  -- Replace texture with a simple one
+        end
+    end
+
+    -- Disable all visual effects in Lighting
+    for i, e in pairs(l:GetChildren()) do
+        if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+            e.Enabled = false  -- Turn off all post-processing effects
+        end
+    end
+
+    -- Disable all shadows (global and parts)
+    game.Lighting.GlobalShadows = false
+    for _, part in pairs(game.Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CastShadow = false  -- Disable shadows for individual parts
+        end
+    end
+
+    -- Disable physics for parts that don't need it
+    for _, part in pairs(game.Workspace:GetDescendants()) do
+        if part:IsA("BasePart") and not part.Anchored then
+            part.Anchored = true  -- Disable physics for non-moving parts
+        end
+    end
+
+    -- Disable all sounds in the game
+    for _, sound in pairs(game:GetDescendants()) do
+        if sound:IsA("Sound") then
+            sound:Stop()  -- Stop any sounds that are playing
+        end
+    end
+
+    -- Optional: Disable camera effects like depth of field, and blur
+    local Camera = game.Workspace.CurrentCamera
+    Camera.FieldOfView = 70  -- Default camera FOV (field of view)
+    Camera.CameraType = Enum.CameraType.Custom  -- Use the standard camera
+
+    -- Disable animations (if needed) to reduce additional overhead
+    for _, animator in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        if animator:IsA("Animator") then
+            animator:Stop()  -- Stop all animations
+        end
+    end
+end
+
+-- Apply low graphics immediately when the script runs
+enableLowGFX()
