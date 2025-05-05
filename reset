@@ -1,0 +1,42 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local idleTime = 0
+local idleThreshold = 10
+local lastPosition = nil
+
+local function onCharacterAdded(char)
+    local humanoid = char:WaitForChild("Humanoid", 5)
+    local root = char:WaitForChild("HumanoidRootPart", 5)
+    if not humanoid or not root then return end
+
+    lastPosition = root.Position
+    idleTime = 0
+
+    humanoid.Died:Connect(function()
+        idleTime = 0
+    end)
+
+    RunService.RenderStepped:Connect(function(dt)
+        if not root or not root.Parent then return end
+
+        local moved = (root.Position - lastPosition).Magnitude > 0.1
+        if moved then
+            idleTime = 0
+            lastPosition = root.Position
+        else
+            idleTime += dt
+        end
+
+        if idleTime >= idleThreshold then
+            idleTime = 0
+            humanoid.Health = 0 -- simulate death to "reset"
+        end
+    end)
+end
+
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+player.CharacterAdded:Connect(onCharacterAdded)
