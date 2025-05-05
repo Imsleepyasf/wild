@@ -1,8 +1,8 @@
 -- Define your moves
 local Moves = {
-    "",
-    "",
-    "",
+    "Anger Rush",
+    "Blaster Meteor",
+    "Big Bang Kamehameha",
     "",
     "",
     "",
