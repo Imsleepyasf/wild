@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local idleTime = 0
-local idleThreshold = 10
+local idleThreshold = 30
 local lastPosition = nil
 
 local function onCharacterAdded(char)
