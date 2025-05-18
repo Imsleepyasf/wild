@@ -1,0 +1,204 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+-- GUI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FollowPlayerGui"
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 280, 0, 160)
+Frame.Position = UDim2.new(0, 20, 0, 20)
+Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
+Frame.Active = true
+Frame.Draggable = false -- We will handle dragging manually
+
+-- Draggable variables
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    Frame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+Frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- Header Label (Drag handle)
+local Header = Instance.new("TextLabel")
+Header.Size = UDim2.new(1, 0, 0, 30)
+Header.Position = UDim2.new(0, 0, 0, 0)
+Header.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Header.TextColor3 = Color3.new(1,1,1)
+Header.Text = "Follow Player (Drag Me)"
+Header.Font = Enum.Font.SourceSansBold
+Header.TextSize = 18
+Header.Parent = Frame
+
+-- Player Name Label
+local PlayerNameLabel = Instance.new("TextLabel")
+PlayerNameLabel.Size = UDim2.new(1, -20, 0, 20)
+PlayerNameLabel.Position = UDim2.new(0, 10, 0, 40)
+PlayerNameLabel.BackgroundTransparency = 1
+PlayerNameLabel.TextColor3 = Color3.new(1,1,1)
+PlayerNameLabel.Text = "Player Name:"
+PlayerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+PlayerNameLabel.Font = Enum.Font.SourceSans
+PlayerNameLabel.TextSize = 16
+PlayerNameLabel.Parent = Frame
+
+-- Player Name InputBox
+local InputBox = Instance.new("TextBox")
+InputBox.Size = UDim2.new(1, -20, 0, 25)
+InputBox.Position = UDim2.new(0, 10, 0, 60)
+InputBox.PlaceholderText = "Enter player name"
+InputBox.ClearTextOnFocus = false
+InputBox.Text = ""
+InputBox.Parent = Frame
+
+-- Follow Distance Label
+local DistanceLabel = Instance.new("TextLabel")
+DistanceLabel.Size = UDim2.new(1, -20, 0, 20)
+DistanceLabel.Position = UDim2.new(0, 10, 0, 90)
+DistanceLabel.BackgroundTransparency = 1
+DistanceLabel.TextColor3 = Color3.new(1,1,1)
+DistanceLabel.Text = "Follow Distance:"
+DistanceLabel.TextXAlignment = Enum.TextXAlignment.Left
+DistanceLabel.Font = Enum.Font.SourceSans
+DistanceLabel.TextSize = 16
+DistanceLabel.Parent = Frame
+
+-- Distance InputBox
+local DistanceBox = Instance.new("TextBox")
+DistanceBox.Size = UDim2.new(1, -20, 0, 25)
+DistanceBox.Position = UDim2.new(0, 10, 0, 110)
+DistanceBox.PlaceholderText = "Enter follow distance (e.g., 5)"
+DistanceBox.ClearTextOnFocus = false
+DistanceBox.Text = "5"
+DistanceBox.Parent = Frame
+
+-- Toggle Button
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(1, -20, 0, 30)
+ToggleButton.Position = UDim2.new(0, 10, 0, 140)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+ToggleButton.TextColor3 = Color3.new(1,1,1)
+ToggleButton.Text = "Start Following"
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.TextSize = 18
+ToggleButton.Parent = Frame
+
+-- Follow Logic
+local following = false
+local followConnection = nil
+
+local function findPlayerByName(name)
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr.Name:lower() == name:lower() then
+            return plr
+        end
+    end
+    return nil
+end
+
+local function followPlayer(targetPlayer, distance)
+    if followConnection then
+        followConnection:Disconnect()
+        followConnection = nil
+    end
+
+    if not targetPlayer or not targetPlayer.Character then return end
+    local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not targetHRP then return end
+
+    followConnection = RunService.RenderStepped:Connect(function()
+        if not targetPlayer.Character or not targetHRP.Parent then
+            -- Player died or left
+            followConnection:Disconnect()
+            following = false
+            ToggleButton.Text = "Start Following"
+            return
+        end
+
+        local charHRP = HumanoidRootPart
+        if not charHRP then return end
+
+        local targetPos = targetHRP.Position
+        local charPos = charHRP.Position
+        local direction = (targetPos - charPos).Unit
+        local targetDistance = (targetPos - charPos).Magnitude
+
+        -- Calculate behind position (same Y height)
+        local behindPos = targetPos - (targetHRP.CFrame.LookVector * distance)
+        behindPos = Vector3.new(behindPos.X, targetPos.Y, behindPos.Z)
+
+        -- Move smoothly towards behind position
+        local lerpSpeed = 0.15
+        local newCFrame = charHRP.CFrame:Lerp(CFrame.new(behindPos, targetPos), lerpSpeed)
+        charHRP.CFrame = newCFrame
+    end)
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+    if following then
+        -- Stop following
+        following = false
+        if followConnection then
+            followConnection:Disconnect()
+            followConnection = nil
+        end
+        ToggleButton.Text = "Start Following"
+    else
+        local name = InputBox.Text
+        local dist = tonumber(DistanceBox.Text) or 5
+        local targetPlayer = findPlayerByName(name)
+
+        if not targetPlayer then
+            warn("Player not found: "..name)
+            return
+        end
+
+        following = true
+        ToggleButton.Text = "Stop Following"
+        followPlayer(targetPlayer, dist)
+    end
+end)
