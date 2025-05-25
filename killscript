@@ -1,0 +1,49 @@
+-- Kill switch script with GUI button
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Flag to control script running state
+local running = true
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "KillSwitchGui"
+screenGui.Parent = playerGui
+
+-- Create Button
+local button = Instance.new("TextButton")
+button.Name = "KillButton"
+button.Parent = screenGui
+button.Text = "KILL SCRIPT"
+button.Size = UDim2.new(0, 120, 0, 40)
+button.Position = UDim2.new(0, 10, 1, -50) -- bottom-left corner with 10px margin from left and 50px from bottom
+button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+button.TextColor3 = Color3.new(1,1,1)
+button.Font = Enum.Font.SourceSansBold
+button.TextSize = 20
+button.BorderSizePixel = 0
+button.AutoButtonColor = true
+
+-- Function to kill the script
+local function killScript()
+    running = false
+    -- Optionally hide the button once pressed
+    button.Text = "SCRIPT STOPPED"
+    button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    button.AutoButtonColor = false
+    button.Active = false
+end
+
+button.MouseButton1Click:Connect(killScript)
+
+-- Example of a loop that stops when running is false
+spawn(function()
+    while running do
+        -- Your ongoing script work here
+        wait(1)
+        print("Script running...")
+    end
+    print("Script stopped.")
+end)
