@@ -1,0 +1,29 @@
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer.Character
+
+local plr = game.Players.LocalPlayer
+local bp = plr:WaitForChild("Backpack")
+
+function resetNamekian()
+    if game.PlaceId == 552500546 then
+        repeat
+            task.wait()
+        until bp:FindFirstChild("Scripter")
+            and bp.Scripter:FindFirstChild("Setup")
+            and bp.Scripter.Setup:FindFirstChild("Frame")
+            and bp.Scripter.Setup.Frame:FindFirstChild("Side")
+            and bp.Scripter.Setup.Frame.Side.Visible == true
+
+        task.wait(4)
+        bp.Scripter.RemoteEvent:FireServer(bp.Scripter.Setup.Frame.Side.Race,"up")
+        task.wait(1)
+        bp.Scripter.RemoteEvent:FireServer("woah")
+        task.wait(1)
+        game:Shutdown()
+    else
+        -- If not on character creation screen, teleport there
+        game:GetService("TeleportService"):Teleport(552500546)
+    end
+end
+
+resetNamekian()
