@@ -1,0 +1,37 @@
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer.Character
+
+local plr = game.Players.LocalPlayer
+local char = plr.Character
+local hrp = char:WaitForChild("HumanoidRootPart")
+local bp = plr:WaitForChild("Backpack")
+local st = bp:FindFirstChild("ServerTraits")
+
+-- Function to wait until the chat UI contains expected text
+function waitForText(text, timeout)
+    local label = plr.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+    local start = os.clock()
+    repeat task.wait() until label.Text == text or os.clock() - start > timeout
+    return label.Text == text
+end
+
+-- Function to swap to a specific slot number
+function swapToSlot(slotNumber)
+    local changer = game.Workspace:WaitForChild("FriendlyNPCs"):FindFirstChild("Character Slot Changer")
+    local timeout = 10
+
+    local chatStart = st.ChatStart
+    local chatAdv = st.ChatAdvance
+
+    -- Start dialogue
+    repeat task.wait() chatStart:FireServer(changer) until waitForText("Change Character Slots?", timeout)
+    task.wait(0.2)
+    repeat task.wait() chatAdv:FireServer({"Yes"}) until waitForText("Alright", timeout)
+    task.wait(0.2)
+    repeat task.wait() chatAdv:FireServer({"k"}) until waitForText("Which slot would you like to play in?", timeout)
+    task.wait(0.2)
+    chatAdv:FireServer({"Slot" .. tostring(slotNumber)})
+end
+
+-- 🔁 Swap to Slot 2
+swapToSlot(2)
