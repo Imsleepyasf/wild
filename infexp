@@ -2,6 +2,7 @@ if game.PlaceId == 552500546 then
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/remakenamek", true))()
 end
 
+game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/slot2ifnotnamek", true))()
 task.wait(10)
 game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
