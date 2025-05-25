@@ -1,0 +1,131 @@
+if game.PlaceId == 552500546 then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/remakenamek", true))()
+end
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer.Character
+
+local plr = game.Players.LocalPlayer
+local char = plr.Character
+local hrp = char:WaitForChild("HumanoidRootPart")
+local bp = plr:WaitForChild("Backpack")
+local st = bp:FindFirstChild("ServerTraits")
+
+function getLvl()
+    for _,v in pairs(char:GetChildren()) do
+        if v.Name:find("Lvl.") and v.Name:match("Lvl.%s(%d+)") then
+            return tonumber(v.Name:match("Lvl.%s(%d+)"))
+        end
+    end
+    return false
+end
+
+function isNamekian()
+    local race = char:FindFirstChild("Race")
+    return race and race.Value == "Namekian"
+end
+
+function waitForText(text, timeout)
+    local label = plr.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+    local start = os.time()
+    repeat task.wait() until label.Text == text or os.time() - start > timeout
+    return label.Text == text
+end
+
+function swapToSlot(slotNumber)
+    local label = plr.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+    local changer = game.Workspace.FriendlyNPCs:FindFirstChild("Character Slot Changer")
+    local timeout = 10
+
+    local chatStart = st.ChatStart
+    local chatAdv = st.ChatAdvance
+
+    repeat task.wait() chatStart:FireServer(changer) until waitForText("Change Character Slots?", timeout)
+    task.wait(0.20)
+    repeat task.wait() chatAdv:FireServer({"Yes"}) until waitForText("Alright", timeout)
+    task.wait(0.20)
+    repeat task.wait() chatAdv:FireServer({"k"}) until waitForText("Which slot would you like to play in?", timeout)
+    task.wait(0.20)
+    chatAdv:FireServer({"Slot" .. tostring(slotNumber)})
+end
+
+function findQuestGiver(questChat)
+    for _,v in pairs(game.Workspace.FriendlyNPCs:GetDescendants()) do
+        if v.Name == "Chat" and v:IsA("StringValue") and v.Value == questChat then
+            return v
+        end
+    end
+end
+
+function cAd(chat)
+    st.ChatAdvance:FireServer({tostring(chat)})
+    task.wait(0.6)
+end
+
+function lvlUp()
+    if not isNamekian() then return end
+    if getLvl() >= 50 then return end
+
+    local fNPC = game.Workspace.FriendlyNPCs
+
+    -- Bulma
+    st.ChatStart:FireServer(fNPC.Bulma.Chat)
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k")
+
+    -- Capsule Ship
+    st.ChatStart:FireServer(fNPC:FindFirstChild("SpaceShip"))
+    task.wait(0.4)
+    cAd("No") cAd("k")
+
+    -- Yunzabit
+    st.ChatStart:FireServer(findQuestGiver("I heard there's a spaceship in Yunzabit Heights").Parent)
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k")
+
+    -- Namekian Ship
+    st.ChatStart:FireServer(fNPC.NamekianShip)
+    task.wait(0.4)
+    cAd("No") cAd("k")
+
+    -- Trunks
+    st.ChatStart:FireServer(fNPC["Trunks [Future]"])
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k")
+
+    -- Time Machine
+    st.ChatStart:FireServer(fNPC.TimeMachine)
+    task.wait(0.4)
+    cAd("No") cAd("k")
+
+    -- Elder Kai
+    st.ChatStart:FireServer(fNPC["Elder Kai"])
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k") cAd("k")
+
+    -- Wait before Korin
+    task.wait(1)
+
+    -- Korin
+    st.ChatStart:FireServer(fNPC["Korin"].Chat.Chat)
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"k"})
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"k"})
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"DRINK"})
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"k"})
+
+	 -- ✅ Swap to Slot 1 — full delay-based method
+    task.wait(0.3)
+    swapToSlot(1)
+
+task.wait(3)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/slot2ifnotnamek", true))()
+
+task.wait(5)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/resetnamekian", true))()
+end
+
+task.wait(1)
+lvlUp()
