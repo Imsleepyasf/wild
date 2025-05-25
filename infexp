@@ -1,4 +1,4 @@
-local numPlayerAllowed = 1 -- edit number, also make sure to like lolies
+local numPlayerAllowed = 2 -- edit number, also make sure to like lolies
 
 while not game:IsLoaded() do
     wait(1)
