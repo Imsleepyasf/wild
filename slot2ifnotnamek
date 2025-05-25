@@ -1,0 +1,51 @@
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer.Character
+
+local plr = game.Players.LocalPlayer
+local char = plr.Character
+local bp = plr:WaitForChild("Backpack")
+local st = bp:FindFirstChild("ServerTraits")
+
+-- Function to check if current race is Namekian
+local function isNamekian()
+	local race = char:FindFirstChild("Race")
+	return race and race.Value == "Namekian"
+end
+
+-- Function to wait for a specific chat message
+local function waitForText(text, timeout)
+	local label = plr.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+	local start = os.clock()
+	repeat task.wait() until label.Text == text or os.clock() - start > timeout
+	return label.Text == text
+end
+
+-- Function to swap slots using the NPC
+local function swapToSlot(slotNumber)
+	local changer = game.Workspace.FriendlyNPCs:FindFirstChild("Character Slot Changer")
+	if not changer then
+		warn("Character Slot Changer NPC not found.")
+		return
+	end
+
+	local timeout = 10
+	st.ChatStart:FireServer(changer)
+	repeat task.wait() until waitForText("Change Character Slots?", timeout)
+	task.wait(0.3)
+	st.ChatAdvance:FireServer({"Yes"})
+	repeat task.wait() until waitForText("Alright", timeout)
+	task.wait(0.3)
+	st.ChatAdvance:FireServer({"k"})
+	repeat task.wait() until waitForText("Which slot would you like to play in?", timeout)
+	task.wait(0.3)
+	st.ChatAdvance:FireServer({"Slot" .. tostring(slotNumber)})
+end
+
+-- 🚀 Main Logic: If not a Namekian, swap to Slot 2
+task.wait(1)
+if not isNamekian() then
+	warn("Current race is NOT Namekian. Swapping to Slot 2...")
+	swapToSlot(2)
+else
+	print("✅ Race is Namekian. No swap needed.")
+end
