@@ -1,24 +1,20 @@
--- Kill switch script with GUI button
-
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Flag to control script running state
 local running = true
 
--- Create ScreenGui
+-- Create ScreenGui and Button
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "KillSwitchGui"
 screenGui.Parent = playerGui
 
--- Create Button
 local button = Instance.new("TextButton")
 button.Name = "KillButton"
 button.Parent = screenGui
 button.Text = "KILL SCRIPT"
 button.Size = UDim2.new(0, 120, 0, 40)
-button.Position = UDim2.new(0, 10, 1, -50) -- bottom-left corner with 10px margin from left and 50px from bottom
+button.Position = UDim2.new(0, 10, 1, -50)
 button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 button.TextColor3 = Color3.new(1,1,1)
 button.Font = Enum.Font.SourceSansBold
@@ -26,10 +22,40 @@ button.TextSize = 20
 button.BorderSizePixel = 0
 button.AutoButtonColor = true
 
--- Function to kill the script
+-- Connections list for cleanup
+local connections = {}
+
+-- Example ongoing loop
+local loopThread = coroutine.create(function()
+    while running do
+        print("Script is running...")
+        wait(1)
+    end
+    print("Loop stopped.")
+end)
+coroutine.resume(loopThread)
+
+-- Example event connection (like listening to something)
+local exampleEvent = game:GetService("RunService").Heartbeat
+local conn = exampleEvent:Connect(function()
+    if not running then
+        conn:Disconnect()
+        print("Heartbeat connection disconnected.")
+    else
+        -- do something every frame
+    end
+end)
+table.insert(connections, conn)
+
+-- Kill function that stops script and cleans up
 local function killScript()
     running = false
-    -- Optionally hide the button once pressed
+    -- Disconnect all connections
+    for _, conn in pairs(connections) do
+        if conn.Connected then
+            conn:Disconnect()
+        end
+    end
     button.Text = "SCRIPT STOPPED"
     button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     button.AutoButtonColor = false
@@ -37,13 +63,3 @@ local function killScript()
 end
 
 button.MouseButton1Click:Connect(killScript)
-
--- Example of a loop that stops when running is false
-spawn(function()
-    while running do
-        -- Your ongoing script work here
-        wait(1)
-        print("Script running...")
-    end
-    print("Script stopped.")
-end)
