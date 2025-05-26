@@ -102,6 +102,7 @@ local function onChat(msg)
 		["-broly"] = CFrame.new(2751.67725, 3944.85986, -2272.62622),
 		["-top"] = CFrame.new(2508.15, 3945.41, -2029.8),
 		["-htop"] = CFrame.new(2510.97656, 3944.75, -2527.53125),
+		["-goku"] = CFrame.new(-5971.38, 21.07, -4235.23),
 	}
 
 	if tweenMap[msg] then
