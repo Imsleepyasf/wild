@@ -1,0 +1,265 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/printcmds"))()
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+
+local function waitForCharacter()
+	repeat task.wait() until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	return player.Character
+end
+
+local function teleportToPlace(placeId)
+	TeleportService:Teleport(placeId)
+end
+
+local function tweenToPosition(cf)
+	local char = waitForCharacter()
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	TweenService:Create(hrp, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {CFrame = cf}):Play()
+end
+
+local function serverHop()
+	local placeId = game.PlaceId
+	local currentJob = game.JobId
+	local servers = HttpService:JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100")).data
+	local list = {}
+	for _, server in ipairs(servers) do
+		if server.playing < server.maxPlayers and server.id ~= currentJob then
+			table.insert(list, server.id)
+		end
+	end
+	if #list > 0 then
+		TeleportService:TeleportToPlaceInstance(placeId, list[math.random(1, #list)])
+	end
+end
+
+local function waitForText(text, timeout)
+	local label = player.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+	local start = os.time()
+	repeat task.wait() until label.Text == text or os.time() - start > timeout
+	return label.Text == text
+end
+
+local function swapToSlot(slotNumber)
+	local char = waitForCharacter()
+	local bp = player:WaitForChild("Backpack")
+	local st = bp:FindFirstChild("ServerTraits")
+	local changer = workspace:WaitForChild("FriendlyNPCs"):FindFirstChild("Character Slot Changer")
+	local label = player.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+	local timeout = 10
+
+	local chatStart = st.ChatStart
+	local chatAdv = st.ChatAdvance
+
+	repeat task.wait() chatStart:FireServer(changer) until waitForText("Change Character Slots?", timeout)
+	task.wait(0.2)
+	repeat task.wait() chatAdv:FireServer({"Yes"}) until waitForText("Alright", timeout)
+	task.wait(0.2)
+	repeat task.wait() chatAdv:FireServer({"k"}) until waitForText("Which slot would you like to play in?", timeout)
+	task.wait(0.2)
+	chatAdv:FireServer({"Slot" .. tostring(slotNumber)})
+end
+
+local function onChat(msg)
+	msg = msg:lower()
+
+	-- Place teleports
+	local placeMap = {
+		["-earth"] = 536102540,
+		["-namek"] = 882399924,
+		["-space"] = 478132461,
+		["-future"] = 569994010,
+		["-sw"] = 2046990924,
+		["-queue"] = 3565304751,
+		["-zaros"] = 2651456105,
+		["-heaven"] = 3552157537,
+		["-htc"] = 882375367,
+	}
+
+	if placeMap[msg] then
+		teleportToPlace(placeMap[msg])
+		return
+	end
+
+	-- Server hop
+	if msg == "-hop" then
+		serverHop()
+		return
+	end
+
+	-- Tween teleports
+	local tweenMap = {
+		["-south"] = CFrame.new(-457.22879, 27.98755, -6411.30957),
+		["-west"] = CFrame.new(-571.08782, 22.98747, -2883.97436),
+		["-central"] = CFrame.new(-3834.22168, 22.98756, -1428.07031),
+		["-satan"] = CFrame.new(-5782.05908, 139.98769, -2742.61548),
+		["-destroyed"] = CFrame.new(-6195.70654, 21.9875, -918.42224),
+		["-broly"] = CFrame.new(2751.67725, 3944.85986, -2272.62622),
+		["-top"] = CFrame.new(2508.15, 3945.41, -2029.8),
+		["-htop"] = CFrame.new(2510.97656, 3944.75, -2527.53125),
+	}
+
+	if tweenMap[msg] then
+		tweenToPosition(tweenMap[msg])
+		return
+	end
+
+	-- Slot switching
+	if msg == "-slot1" then
+		swapToSlot(1)
+	elseif msg == "-slot2" then
+		swapToSlot(2)
+	elseif msg == "-slot3" then
+		swapToSlot(3)
+	end
+end
+
+-- Persistent connection (survives character changes)
+local function bindChat()
+	player.Chatted:Connect(onChat)
+end
+
+-- Rebind after every respawn
+Players.LocalPlayer.CharacterAdded:Connect(function()
+	task.wait(1)
+	bindChat()
+end)
+
+-- Initial bind
+bindChat()
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+local savedPosition = nil
+
+local function hardReset()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        savedPosition = character.HumanoidRootPart.CFrame
+        print("[HR] Saved position:", savedPosition)
+        character:BreakJoints()
+        print("[HR] Character reset triggered")
+    else
+        warn("[HR] Character or HumanoidRootPart missing")
+    end
+end
+
+local function tweenToPosition(hrp, targetCFrame)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+    local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
+
+    tween:Play()
+    tween.Completed:Wait()
+end
+
+player.CharacterAdded:Connect(function(char)
+    print("[HR] Character added")
+    if savedPosition then
+        local hrp = char:WaitForChild("HumanoidRootPart", 10)
+        if hrp then
+            task.wait(1) -- Wait for character to load fully
+            print("[HR] Starting fast tween back to saved position")
+
+            tweenToPosition(hrp, savedPosition)
+
+            print("[HR] Arrived at saved position")
+            savedPosition = nil
+        else
+            warn("[HR] HumanoidRootPart not found in time")
+        end
+    end
+end)
+
+player.Chatted:Connect(function(msg)
+    local lowerMsg = msg:lower()
+    if lowerMsg == "-hr" then
+        hardReset()
+    end
+end)
+
+-- Noclip control
+local noclip = false
+RunService.Stepped:Connect(function()
+	if noclip and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+		LocalPlayer.Character.Humanoid:ChangeState(11)
+	end
+end)
+
+-- Wait for character
+local function waitForCharacter()
+	repeat task.wait() until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	return LocalPlayer.Character
+end
+
+-- Tween movement to a CFrame
+local function tweenTo(cframe)
+	local char = waitForCharacter()
+	local hrp = char:WaitForChild("HumanoidRootPart")
+
+	noclip = true
+	local tween = TweenService:Create(hrp, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		CFrame = cframe
+	})
+	tween:Play()
+	tween.Completed:Wait()
+	noclip = false
+end
+
+-- Find a player whose name contains part of the query
+local function findPlayerByNamePart(partial)
+	partial = partial:lower()
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer and p.Name:lower():find(partial) then
+			return p
+		end
+	end
+end
+
+-- Handle chat commands
+LocalPlayer.Chatted:Connect(function(msg)
+	local args = msg:lower():split(" ")
+	if args[1] == "-tp" and args[2] then
+		local query = table.concat(args, " ", 2)
+		local targetPlayer = findPlayerByNamePart(query)
+
+		if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			local targetHRP = targetPlayer.Character.HumanoidRootPart
+			local offsetCF = targetHRP.CFrame * CFrame.new(0, 0, -3) -- 3 studs in front
+			tweenTo(offsetCF)
+		else
+			warn("No matching player found for: " .. query)
+		end
+	end
+end)
+
+LocalPlayer.Chatted:Connect(function(msg)
+	local args = msg:lower():split(" ")
+
+	if args[1] == "-tp" and args[2] then
+		local query = table.concat(args, " ", 2)
+		local targetPlayer = findPlayerByNamePart(query)
+
+		if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			local targetHRP = targetPlayer.Character.HumanoidRootPart
+			local offsetCF = targetHRP.CFrame * CFrame.new(0, 0, -3) -- 3 studs in front
+			tweenTo(offsetCF)
+		else
+			warn("No matching player found for: " .. query)
+		end
+		return
+	end
+
+	if msg == "-rj" then
+		local placeId = game.PlaceId
+		local jobId = game.JobId
+		TeleportService:TeleportToPlaceInstance(placeId, jobId)
+		return
+	end
+end)
