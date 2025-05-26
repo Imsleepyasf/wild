@@ -103,6 +103,10 @@ local function onChat(msg)
 		["-top"] = CFrame.new(2508.15, 3945.41, -2029.8),
 		["-htop"] = CFrame.new(2510.97656, 3944.75, -2527.53125),
 		["-goku"] = CFrame.new(-5971.38, 21.07, -4235.23),
+		["-jshop"] = CFrame.new(775.256531, 133.407135, 619.1604),
+		["-kami"] = CFrame.new(2298.29, 3944.81, -2260.90),
+		["-korin"] = CFrame.new(2045.31, 1494.56, -2278.30),
+		["-senzu"] = CFrame.new(-3896.79, 23.99, -2042.31),
 	}
 
 	if tweenMap[msg] then
