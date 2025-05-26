@@ -1,0 +1,7 @@
+print ("-earth, -namek, -space, -future, -sw, -queue, -zaros, -heaven, -htc")
+print ("-hop, -rj - - server hop or rejoin.")
+print ("-south, -west, -central, satan, destroyed - - tps to cities.")
+print ("-broly, -top, -htop")
+print ("-slot1, -slot2, -slot3")
+print ("-hr - - hard reset and tps back to position.")
+print ("-tp <name> - - tps to player (doesnt work on npcs)")
