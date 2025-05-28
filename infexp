@@ -76,6 +76,16 @@ function findQuestGiver(questChat)
     end
 end
 
+local x = function()
+    local code = game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/resetnamekian", true)
+    local loaded = loadstring(code)
+    if loaded then
+        loaded()
+    else
+        warn("Failed to load the script.")
+    end
+end
+
 function cAd(chat)
     st.ChatAdvance:FireServer({tostring(chat)})
     task.wait(0.6)
@@ -83,7 +93,7 @@ end
 
 function lvlUp()
     if not isNamekian() then return end
-    if getLvl() >= 50 then return end
+    if getLvl() >= 44 then x() end
 
     local fNPC = game.Workspace.FriendlyNPCs
 
