@@ -268,3 +268,11 @@ LocalPlayer.Chatted:Connect(function(msg)
 		return
 	end
 end)
+
+local plr = game.Players.LocalPlayer
+plr.Chatted:Connect(function(msg)
+    msg = msg:lower()
+    if msg == "-red" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/redquest.", true))()
+    end
+end)
