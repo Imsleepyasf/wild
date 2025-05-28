@@ -297,118 +297,6 @@ player.Chatted:Connect(function(msg)
 	end
 end)
 
-local player = game.Players.LocalPlayer
-local runService = game:GetService("RunService")
-local tweenService = game:GetService("TweenService")
-local virtualInput = game:GetService("VirtualInputManager")
-
-local isFrozen = false
-local freezeTween = nil
-local frozenPosition = nil
-local isSpamming = false
-
--- Function to freeze the character
-local function freezeCharacter()
-    local character = player.Character
-    if character then
-        isFrozen = true
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-
-        if humanoidRootPart then
-            frozenPosition = humanoidRootPart.CFrame -- Save position before freezing
-
-            -- Tween to keep the character in place
-            freezeTween = tweenService:Create(
-                humanoidRootPart,
-                TweenInfo.new(0.01, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true),
-                { CFrame = frozenPosition }
-            )
-            freezeTween:Play()
-
-            -- Disable movement
-            local humanoid = character:FindFirstChild("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = 0
-                humanoid.JumpHeight = 0
-                humanoid.PlatformStand = true
-            end
-        end
-    end
-end
-
--- Function to unfreeze the character
-local function unfreezeCharacter()
-    local character = player.Character
-    if character then
-        isFrozen = false
-        if freezeTween then
-            freezeTween:Cancel()
-            freezeTween = nil
-        end
-
-        -- Restore movement
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = 16
-            humanoid.JumpHeight = 50
-            humanoid.PlatformStand = false
-        end
-    end
-end
-
--- Function to handle character respawn (fixing hard reset issue)
-local function onCharacterAdded(character)
-    task.wait(1) -- Wait for character to fully load
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    -- If the character was frozen before reset, teleport back and refreeze
-    if isFrozen and frozenPosition then
-        humanoidRootPart.CFrame = frozenPosition
-        task.wait(0.5) -- Small delay to avoid issues
-        freezeCharacter() -- Reapply freeze
-    end
-end
-
--- Listen for character respawn
-player.CharacterAdded:Connect(onCharacterAdded)
-
--- Function to stop the spam feature
-local function stopSpam()
-    isSpamming = false
-end
-
--- Function to use the jar and reset repeatedly
-local function useJarAndReset()
-    isSpamming = true
-    while isSpamming do
-        local character = player.Character
-        if character then
-            -- Automatically use the jar
-            virtualInput:SendKeyEvent(true, Enum.KeyCode.C, false, game)
-            wait(1) -- Small delay before resetting
-            
-            -- Hard reset (forces respawn)
-            character:BreakJoints()
-        end
-        wait(8) -- Time before looping again
-    end
-end
-
--- Listen for chat commands (merged)
-player.Chatted:Connect(function(message)
-    local lowerMessage = message:lower()
-    
-    if lowerMessage == "-spam" or lowerMessage == ".on" then
-        freezeCharacter()
-        if not isSpamming then
-            task.spawn(useJarAndReset)
-        end
-    elseif lowerMessage == "-stop" or lowerMessage == ".off" then
-        unfreezeCharacter()
-        stopSpam()
-    end
-end)
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -544,5 +432,121 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if input.KeyCode == Enum.KeyCode.Period then  -- This is the '.' key
             fastTalkToHairStylist()
         end
+    end
+end)
+
+if game.PlaceId == 536102540 then
+    return
+end
+
+local player = game.Players.LocalPlayer
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+local virtualInput = game:GetService("VirtualInputManager")
+
+local isFrozen = false
+local freezeTween = nil
+local frozenPosition = nil
+local isSpamming = false
+
+-- Function to freeze the character
+local function freezeCharacter()
+    local character = player.Character
+    if character then
+        isFrozen = true
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+
+        if humanoidRootPart then
+            frozenPosition = humanoidRootPart.CFrame -- Save position before freezing
+
+            -- Tween to keep the character in place
+            freezeTween = tweenService:Create(
+                humanoidRootPart,
+                TweenInfo.new(0.01, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true),
+                { CFrame = frozenPosition }
+            )
+            freezeTween:Play()
+
+            -- Disable movement
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 0
+                humanoid.JumpHeight = 0
+                humanoid.PlatformStand = true
+            end
+        end
+    end
+end
+
+-- Function to unfreeze the character
+local function unfreezeCharacter()
+    local character = player.Character
+    if character then
+        isFrozen = false
+        if freezeTween then
+            freezeTween:Cancel()
+            freezeTween = nil
+        end
+
+        -- Restore movement
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = 16
+            humanoid.JumpHeight = 50
+            humanoid.PlatformStand = false
+        end
+    end
+end
+
+-- Function to handle character respawn (fixing hard reset issue)
+local function onCharacterAdded(character)
+    task.wait(1) -- Wait for character to fully load
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- If the character was frozen before reset, teleport back and refreeze
+    if isFrozen and frozenPosition then
+        humanoidRootPart.CFrame = frozenPosition
+        task.wait(0.5) -- Small delay to avoid issues
+        freezeCharacter() -- Reapply freeze
+    end
+end
+
+-- Listen for character respawn
+player.CharacterAdded:Connect(onCharacterAdded)
+
+-- Function to stop the spam feature
+local function stopSpam()
+    isSpamming = false
+end
+
+-- Function to use the jar and reset repeatedly
+local function useJarAndReset()
+    isSpamming = true
+    while isSpamming do
+        local character = player.Character
+        if character then
+            -- Automatically use the jar
+            virtualInput:SendKeyEvent(true, Enum.KeyCode.C, false, game)
+            wait(1) -- Small delay before resetting
+            
+            -- Hard reset (forces respawn)
+            character:BreakJoints()
+        end
+        wait(8) -- Time before looping again
+    end
+end
+
+-- Listen for chat commands (merged)
+player.Chatted:Connect(function(message)
+    local lowerMessage = message:lower()
+    
+    if lowerMessage == "-spam" or lowerMessage == ".on" then
+        freezeCharacter()
+        if not isSpamming then
+            task.spawn(useJarAndReset)
+        end
+    elseif lowerMessage == "-stop" or lowerMessage == ".off" then
+        unfreezeCharacter()
+        stopSpam()
     end
 end)
