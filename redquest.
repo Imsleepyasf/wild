@@ -1,8 +1,51 @@
+game.Players.LocalPlayer.PlayerGui.HUD.Bottom.Stats.Visible = true
+
+
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer.Character
+
+local plr = game.Players.LocalPlayer
+local char = plr.Character
+local hrp = char:WaitForChild("HumanoidRootPart")
+local bp = plr:WaitForChild("Backpack")
+local st = bp:FindFirstChild("ServerTraits")
+
+function getLvl()
+    for _,v in pairs(char:GetChildren()) do
+        if v.Name:find("Lvl.") and v.Name:match("Lvl.%s(%d+)") then
+            return tonumber(v.Name:match("Lvl.%s(%d+)"))
+        end
+    end
+    return false
+end
+
+function isNamekian()
+    local race = char:FindFirstChild("Race")
+    return race and race.Value == "Namekian"
+end
+
 function waitForText(text, timeout)
     local label = plr.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
     local start = os.time()
     repeat task.wait() until label.Text == text or os.time() - start > timeout
     return label.Text == text
+end
+
+function swapToSlot(slotNumber)
+    local label = plr.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+    local changer = game.Workspace.FriendlyNPCs:FindFirstChild("Character Slot Changer")
+    local timeout = 10
+
+    local chatStart = st.ChatStart
+    local chatAdv = st.ChatAdvance
+
+    repeat task.wait() chatStart:FireServer(changer) until waitForText("Change Character Slots?", timeout)
+    task.wait(0.20)
+    repeat task.wait() chatAdv:FireServer({"Yes"}) until waitForText("Alright", timeout)
+    task.wait(0.20)
+    repeat task.wait() chatAdv:FireServer({"k"}) until waitForText("Which slot would you like to play in?", timeout)
+    task.wait(0.20)
+    chatAdv:FireServer({"Slot" .. tostring(slotNumber)})
 end
 
 function findQuestGiver(questChat)
@@ -18,29 +61,8 @@ function cAd(chat)
     task.wait(0.6)
 end
 
-function getSpecificNamekian(position)
-    local closestNPC = nil
-    local shortestDistance = math.huge
-
-    for _, npc in pairs(game.Workspace.FriendlyNPCs:GetChildren()) do
-        if npc:IsA("Model") and npc.Name == "Namekian" and npc:FindFirstChild("Chat") then
-            local root = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildWhichIsA("BasePart")
-            if root then
-                local dist = (root.Position - position).Magnitude
-                if dist < shortestDistance then
-                    shortestDistance = dist
-                    closestNPC = npc
-                end
-            end
-        end
-    end
-
-    return closestNPC
-end
-
 function lvlUp()
-    if not isNamekian() then return end
-    if getLvl() >= 50 then return end
+
 
     local fNPC = game.Workspace.FriendlyNPCs
 
@@ -92,31 +114,7 @@ function lvlUp()
     st.ChatAdvance:FireServer({"DRINK"})
     task.wait(0.4)
     st.ChatAdvance:FireServer({"k"})
-
-    -- Talk to the specific "Namekian" at known location
-    local targetPos = Vector3.new(-1289.412841796875, 23.04233169555664, -2972.6142578125)
-    local specificNamekian = getSpecificNamekian(targetPos)
-    if specificNamekian and specificNamekian:FindFirstChild("Chat") then
-        task.wait(0.6)
-        st.ChatStart:FireServer(specificNamekian.Chat)
-        task.wait(0.4)
-        st.ChatAdvance:FireServer({"k"})
-        task.wait(0.4)
-        st.ChatAdvance:FireServer({"Sure"})
-        task.wait(0.4)
-        st.ChatAdvance:FireServer({"k"})
-    else
-        warn("Correct Namekian not found.")
-    end
-
-    -- Then talk to "Lost Namekian"
-    local lostNamekian = fNPC:FindFirstChild("Lost Namekian")
-    if lostNamekian and lostNamekian:FindFirstChild("Chat") then
-        task.wait(0.6)
-        st.ChatStart:FireServer(lostNamekian.Chat)
-        task.wait(0.4)
-        st.ChatAdvance:FireServer({"k"})
-    else
-        warn("Lost Namekian not found.")
-    end
 end
+
+task.wait(1)
+lvlUp()
