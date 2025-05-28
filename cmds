@@ -435,10 +435,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-if game.PlaceId == 536102540 then
-    return
-end
-
 local player = game.Players.LocalPlayer
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
@@ -532,7 +528,7 @@ local function useJarAndReset()
             -- Hard reset (forces respawn)
             character:BreakJoints()
         end
-        wait(8) -- Time before looping again
+        wait(5) -- Time before looping again
     end
 end
 
@@ -540,13 +536,195 @@ end
 player.Chatted:Connect(function(message)
     local lowerMessage = message:lower()
     
-    if lowerMessage == "-spam" or lowerMessage == ".on" then
+    if lowerMessage == ".on" then
         freezeCharacter()
         if not isSpamming then
             task.spawn(useJarAndReset)
         end
-    elseif lowerMessage == "-stop" or lowerMessage == ".off" then
+    elseif lowerMessage == ".off" then
         unfreezeCharacter()
         stopSpam()
     end
 end)
+
+if game.PlaceId == 536102540 then
+
+    local player = game.Players.LocalPlayer
+    local runService = game:GetService("RunService")
+    local tweenService = game:GetService("TweenService")
+    local virtualInput = game:GetService("VirtualInputManager")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local isFrozen = false
+    local freezeTween = nil
+    local frozenPosition = nil
+    local isSpamming = false
+
+    local spawnPartName = "CustomPlayerSpawn"
+
+    -- Reference to Hair Stylist NPC (adjust path if needed)
+    local hairStylist = workspace:WaitForChild("FriendlyNPCs"):WaitForChild("Hair Stylist")
+
+    -- Wait for Chat remotes under ServerTraits in Backpack
+    local function waitForRemotes()
+        repeat task.wait() until player.Backpack and player.Backpack:FindFirstChild("ServerTraits")
+        local traits = player.Backpack.ServerTraits
+        repeat task.wait() until traits:FindFirstChild("ChatStart") and traits:FindFirstChild("ChatAdvance")
+        return traits.ChatStart, traits.ChatAdvance
+    end
+
+    -- Fast talk to Hair Stylist NPC
+    local function fastTalkToHairStylist()
+        local chatStart, chatAdvance = waitForRemotes()
+
+        chatStart:FireServer(hairStylist)
+        task.wait(0.2)
+
+        repeat
+            chatAdvance:FireServer({"Yes"})
+            runService.RenderStepped:Wait()
+        until player.Backpack:FindFirstChild("HairScript")
+
+        local hairScript = player.Backpack:FindFirstChild("HairScript")
+        if hairScript then
+            local remote = hairScript:FindFirstChild("RemoteEvent")
+            if remote then
+                remote:FireServer("woah")
+                runService.RenderStepped:Wait()
+                if remote and remote.Parent then
+                    remote:FireServer("woah")
+                end
+            end
+        end
+    end
+
+    -- Create or update spawn location part at given CFrame (anchored at feet, invisible, no collision)
+    local function createOrUpdateSpawnLocation(cframe)
+        local existingSpawn = workspace:FindFirstChild(spawnPartName)
+        local partSize = Vector3.new(6, 1, 6)
+        local spawnCFrame = cframe * CFrame.new(0, -partSize.Y / 2, 0) -- lower by half part size so feet are on ground
+
+        if existingSpawn then
+            existingSpawn.CFrame = spawnCFrame
+        else
+            local spawnPart = Instance.new("SpawnLocation")
+            spawnPart.Name = spawnPartName
+            spawnPart.Anchored = true
+            spawnPart.CanCollide = false
+            spawnPart.Size = partSize
+            spawnPart.CFrame = spawnCFrame
+            spawnPart.Transparency = 1
+            spawnPart.Neutral = true
+            spawnPart.AllowTeamChangeOnTouch = false
+            spawnPart.Parent = workspace
+        end
+    end
+
+    -- Remove the custom spawn point from workspace
+    local function removeCustomSpawn()
+        local spawn = workspace:FindFirstChild(spawnPartName)
+        if spawn then
+            spawn:Destroy()
+        end
+    end
+
+    -- Function to freeze the character
+    local function freezeCharacter()
+        local character = player.Character
+        if character then
+            isFrozen = true
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+
+            if humanoidRootPart then
+                frozenPosition = humanoidRootPart.CFrame
+                createOrUpdateSpawnLocation(frozenPosition)
+
+                freezeTween = tweenService:Create(
+                    humanoidRootPart,
+                    TweenInfo.new(0.01, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true),
+                    { CFrame = frozenPosition }
+                )
+                freezeTween:Play()
+
+                local humanoid = character:FindFirstChild("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpHeight = 0
+                    humanoid.PlatformStand = true
+                end
+            end
+        end
+    end
+
+    -- Function to unfreeze the character
+    local function unfreezeCharacter()
+        local character = player.Character
+        if character then
+            isFrozen = false
+            if freezeTween then
+                freezeTween:Cancel()
+                freezeTween = nil
+            end
+
+            removeCustomSpawn()
+
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+                humanoid.JumpHeight = 50
+                humanoid.PlatformStand = false
+            end
+        end
+    end
+
+    -- Handle character respawn and reposition if frozen
+    local function onCharacterAdded(character)
+        task.wait(1)
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        if isFrozen and frozenPosition then
+            humanoidRootPart.CFrame = frozenPosition
+            task.wait(0.5)
+            freezeCharacter()
+        end
+    end
+
+    player.CharacterAdded:Connect(onCharacterAdded)
+
+    local function stopSpam()
+        isSpamming = false
+    end
+
+    local function useJarTalkHairAndTeleport()
+        isSpamming = true
+        while isSpamming do
+            local character = player.Character
+            if character then
+                virtualInput:SendKeyEvent(true, Enum.KeyCode.C, false, game)
+                task.wait(1)
+
+                fastTalkToHairStylist()
+
+                if frozenPosition and character:FindFirstChild("HumanoidRootPart") then
+                    character.HumanoidRootPart.CFrame = frozenPosition
+                end
+            end
+            task.wait(2)
+        end
+    end
+
+    player.Chatted:Connect(function(message)
+        local lowerMessage = message:lower()
+
+        if lowerMessage == "-spam" then
+            freezeCharacter()
+            if not isSpamming then
+                task.spawn(useJarTalkHairAndTeleport)
+            end
+        elseif lowerMessage == "-stop" then
+            unfreezeCharacter()
+            stopSpam()
+        end
+    end)
+
+end
