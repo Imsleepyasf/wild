@@ -8,4 +8,5 @@ goku, jshop, kami, korin, senzu - - goku's house, tps u to jiren's shop, lookout
 -tp <name> - - tps to player but is buggy.
 -red - - Does the red quests, Elder Kai and Korin.
 -reset - - same as -hr but doesnt save pos.
--spam - - spam jars use -stop to stop it (it also triggers on .on and .off) 	]]
+-spam - - spam jars use -stop to stop it (it also triggers on .on and .off) 	
+-fling ]]
