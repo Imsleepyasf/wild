@@ -485,3 +485,64 @@ LocalPlayer.Chatted:Connect(function(msg)
 		end
 	end
 end)
+
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local hairStylist = workspace:WaitForChild("FriendlyNPCs"):WaitForChild("Hair Stylist")
+
+-- Wait until the ServerTraits and required remotes exist
+local function waitForRemotes()
+    repeat task.wait() until player.Backpack and player.Backpack:FindFirstChild("ServerTraits")
+    local traits = player.Backpack.ServerTraits
+    repeat task.wait() until traits:FindFirstChild("ChatStart") and traits:FindFirstChild("ChatAdvance")
+    return traits.ChatStart, traits.ChatAdvance
+end
+
+local function fastTalkToHairStylist()
+    local chatStart, chatAdvance = waitForRemotes()
+
+    -- Start the conversation with Hair Stylist
+    chatStart:FireServer(hairStylist)
+    task.wait(0.2)
+
+    -- Keep advancing dialogue fast until the "HairScript" appears in Backpack
+    repeat
+        chatAdvance:FireServer({"Yes"})
+        RunService.RenderStepped:Wait()
+    until player.Backpack:FindFirstChild("HairScript")
+
+    -- Fire the HairScript RemoteEvent to finish
+    local hairScript = player.Backpack:FindFirstChild("HairScript")
+    if hairScript then
+        local remote = hairScript:FindFirstChild("RemoteEvent")
+        if remote then
+            remote:FireServer("woah")
+            RunService.RenderStepped:Wait()
+            if remote and remote.Parent then
+                remote:FireServer("woah")
+            end
+        end
+    end
+end
+
+-- Listen to player chat and trigger on "-hair"
+player.Chatted:Connect(function(msg)
+    if msg:lower() == "-hair" then
+        fastTalkToHairStylist()
+    end
+end)
+local UserInputService = game:GetService("UserInputService")
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end  -- Ignore if the game already processed the input
+    
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == Enum.KeyCode.Period then  -- This is the '.' key
+            fastTalkToHairStylist()
+        end
+    end
+end)
