@@ -9,8 +9,8 @@ goku, jshop, kami, korin, senzu - - goku's house, tps u to jiren's shop, lookout
 -tp <name> - - tps to player but is buggy.
 -red - - Does the red quests, Elder Kai and Korin.
 -reset - - same as -hr but doesnt save pos.
--spam / -stop - - spam jars use -stop to stop it. (hair method so wont work on some races.)
-.on / .off - -  spams jars but hard resets instead of hair method. (is obviously slower)	
+-spam / -stop - - spam jars use -stop to stop it. (hair method so wont work on some races and only works on earth.) will only work near ur spawn area
+.on / .off - -  spams jars but hard resets instead of hair method. (is obviously slower)			    will only work near ur spawn area
 -fling - - do i rly gotta explain this?
 -hair or keybind "."  - - talks to hair stylist. 						
-		]]
+]]
