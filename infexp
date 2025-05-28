@@ -12,17 +12,6 @@ end
 
 local StarterGui = game:GetService("StarterGui")
 
--- Your full script logic here
--- Example action:
-print("Full script executed!") -- Replace with your actual script logic
-
--- Show notification in bottom-right corner
-StarterGui:SetCore("SendNotification", {
-    Title = "Script Executed";
-    Text = "1 Person Per Server";
-    Duration = 5; -- Duration in seconds
-})
-
 if game.PlaceId == 552500546 then
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/remakenamek", true))()
 end
@@ -160,3 +149,14 @@ end
 
 task.wait(1)
 lvlUp()
+
+-- Your full script logic here
+-- Example action:
+print("Full script executed!") -- Replace with your actual script logic
+
+-- Show notification in bottom-right corner
+StarterGui:SetCore("SendNotification", {
+    Title = "Script Executed";
+    Text = "1 Person Per Server";
+    Duration = 5; -- Duration in seconds
+})
