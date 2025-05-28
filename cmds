@@ -728,3 +728,81 @@ if game.PlaceId == 536102540 then
     end)
 
 end
+
+local player = game.Players.LocalPlayer
+
+-- Helper: find player from partial name
+local function getPlayerFromPartialName(partialName)
+    partialName = partialName:lower()
+    for _, p in ipairs(game.Players:GetPlayers()) do
+        if p.Name:lower():find(partialName, 1, true) then
+            return p
+        end
+    end
+    return nil
+end
+
+-- Function to print another player's stats
+local function printPlayerStats(targetPlayer)
+    local liveFolder = workspace:FindFirstChild("Live")
+    if not liveFolder then
+        warn("Live folder not found.")
+        return
+    end
+
+    local playerModel = liveFolder:FindFirstChild(targetPlayer.Name)
+    if not playerModel then
+        warn("Player model not found in Live: " .. targetPlayer.Name)
+        return
+    end
+
+    local statsFolder = playerModel:FindFirstChild("Stats")
+    if not statsFolder then
+        warn("Stats folder not found for player: " .. targetPlayer.Name)
+        return
+    end
+
+    print("================== Stats for " .. targetPlayer.Name .. " ==================")
+
+    for _, stat in ipairs(statsFolder:GetChildren()) do
+        if stat:IsA("NumberValue") or stat:IsA("IntValue") or stat:IsA("DoubleConstrainedValue") then
+            print(stat.Name .. ": " .. stat.Value)
+        elseif stat:IsA("StringValue") then
+            print(stat.Name .. ": " .. stat.Value)
+        elseif stat:IsA("TextLabel") then
+            print(stat.Name .. ": " .. stat.Text)
+        else
+            print(stat.Name .. ": (no readable value)")
+        end
+    end
+    
+    print("======================================================\n")
+end
+
+-- Debounce variables
+local lastCommandTime = 0
+local debounceTime = 1 -- seconds
+
+-- Listen for chat command: -stats <partial name>
+player.Chatted:Connect(function(message)
+    local currentTime = tick()
+    if currentTime - lastCommandTime < debounceTime then
+        return -- ignore repeated commands too quickly
+    end
+    lastCommandTime = currentTime
+
+    local lower = message:lower()
+    if lower:sub(1, 7) == "-stats " then
+        local nameQuery = message:sub(8):gsub("^%s+", ""):gsub("%s+$", "")
+        if nameQuery ~= "" then
+            local target = getPlayerFromPartialName(nameQuery)
+            if target then
+                printPlayerStats(target)
+            else
+                warn("No player found matching: " .. nameQuery)
+            end
+        else
+            warn("Please provide a name after -stats.")
+        end
+    end
+end)
