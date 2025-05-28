@@ -1,0 +1,122 @@
+function waitForText(text, timeout)
+    local label = plr.PlayerGui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("ChatGui"):WaitForChild("TextLabel")
+    local start = os.time()
+    repeat task.wait() until label.Text == text or os.time() - start > timeout
+    return label.Text == text
+end
+
+function findQuestGiver(questChat)
+    for _,v in pairs(game.Workspace.FriendlyNPCs:GetDescendants()) do
+        if v.Name == "Chat" and v:IsA("StringValue") and v.Value == questChat then
+            return v
+        end
+    end
+end
+
+function cAd(chat)
+    st.ChatAdvance:FireServer({tostring(chat)})
+    task.wait(0.6)
+end
+
+function getSpecificNamekian(position)
+    local closestNPC = nil
+    local shortestDistance = math.huge
+
+    for _, npc in pairs(game.Workspace.FriendlyNPCs:GetChildren()) do
+        if npc:IsA("Model") and npc.Name == "Namekian" and npc:FindFirstChild("Chat") then
+            local root = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildWhichIsA("BasePart")
+            if root then
+                local dist = (root.Position - position).Magnitude
+                if dist < shortestDistance then
+                    shortestDistance = dist
+                    closestNPC = npc
+                end
+            end
+        end
+    end
+
+    return closestNPC
+end
+
+function lvlUp()
+    if not isNamekian() then return end
+    if getLvl() >= 50 then return end
+
+    local fNPC = game.Workspace.FriendlyNPCs
+
+    -- Bulma
+    st.ChatStart:FireServer(fNPC.Bulma.Chat)
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k")
+
+    -- Capsule Ship
+    st.ChatStart:FireServer(fNPC:FindFirstChild("SpaceShip"))
+    task.wait(0.4)
+    cAd("No") cAd("k")
+
+    -- Yunzabit
+    st.ChatStart:FireServer(findQuestGiver("I heard there's a spaceship in Yunzabit Heights").Parent)
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k")
+
+    -- Namekian Ship
+    st.ChatStart:FireServer(fNPC.NamekianShip)
+    task.wait(0.4)
+    cAd("No") cAd("k")
+
+    -- Trunks
+    st.ChatStart:FireServer(fNPC["Trunks [Future]"])
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k")
+
+    -- Time Machine
+    st.ChatStart:FireServer(fNPC.TimeMachine)
+    task.wait(0.4)
+    cAd("No") cAd("k")
+
+    -- Elder Kai
+    st.ChatStart:FireServer(fNPC["Elder Kai"])
+    task.wait(0.4)
+    cAd("k") cAd("Yes") cAd("k") cAd("k")
+
+    -- Wait before Korin
+    task.wait(1)
+
+    -- Korin
+    st.ChatStart:FireServer(fNPC["Korin"].Chat.Chat)
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"k"})
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"k"})
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"DRINK"})
+    task.wait(0.4)
+    st.ChatAdvance:FireServer({"k"})
+
+    -- Talk to the specific "Namekian" at known location
+    local targetPos = Vector3.new(-1289.412841796875, 23.04233169555664, -2972.6142578125)
+    local specificNamekian = getSpecificNamekian(targetPos)
+    if specificNamekian and specificNamekian:FindFirstChild("Chat") then
+        task.wait(0.6)
+        st.ChatStart:FireServer(specificNamekian.Chat)
+        task.wait(0.4)
+        st.ChatAdvance:FireServer({"k"})
+        task.wait(0.4)
+        st.ChatAdvance:FireServer({"Sure"})
+        task.wait(0.4)
+        st.ChatAdvance:FireServer({"k"})
+    else
+        warn("Correct Namekian not found.")
+    end
+
+    -- Then talk to "Lost Namekian"
+    local lostNamekian = fNPC:FindFirstChild("Lost Namekian")
+    if lostNamekian and lostNamekian:FindFirstChild("Chat") then
+        task.wait(0.6)
+        st.ChatStart:FireServer(lostNamekian.Chat)
+        task.wait(0.4)
+        st.ChatAdvance:FireServer({"k"})
+    else
+        warn("Lost Namekian not found.")
+    end
+end
