@@ -48,5 +48,5 @@ if not isNamekian() then
 	swapToSlot(2)
 else
 	print("✅ Race is Namekian. No swap needed.")
-end
 task.wait(10)
+end
