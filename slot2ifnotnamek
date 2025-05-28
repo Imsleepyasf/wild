@@ -44,8 +44,8 @@ end
 -- 🚀 Main Logic: If not a Namekian, swap to Slot 2
 task.wait(1)
 if not isNamekian() then
-	warn("Current race is NOT Namekian. Swapping to Slot 2...")
 	swapToSlot(2)
+	task.wait(10)
 else
 	print("✅ Race is Namekian. No swap needed.")
 end
