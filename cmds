@@ -276,3 +276,23 @@ plr.Chatted:Connect(function(msg)
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Imsleepyasf/wild/refs/heads/main/redquest.", true))()
     end
 end)
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function reset()
+	local char = player.Character
+	if not char then return end
+
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.Health > 0 then
+		humanoid.Health = 0
+	end
+end
+
+-- Listen for chat messages from the local player
+player.Chatted:Connect(function(msg)
+	if msg == "-reset" then
+		reset()
+	end
+end)
