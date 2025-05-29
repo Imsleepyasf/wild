@@ -764,6 +764,12 @@ local function printPlayerStats(targetPlayer)
 
     print("================== Stats for " .. targetPlayer.Name .. " ==================")
 
+    -- Attempt to print Race
+    local raceValue = statsFolder:FindFirstChild("Race") or playerModel:FindFirstChild("Race")
+    if raceValue and raceValue:IsA("StringValue") then
+        print("Race: " .. raceValue.Value)
+    end
+
     for _, stat in ipairs(statsFolder:GetChildren()) do
         if stat:IsA("NumberValue") or stat:IsA("IntValue") or stat:IsA("DoubleConstrainedValue") then
             print(stat.Name .. ": " .. stat.Value)
@@ -775,7 +781,7 @@ local function printPlayerStats(targetPlayer)
             print(stat.Name .. ": (no readable value)")
         end
     end
-    
+
     print("======================================================\n")
 end
 
@@ -804,5 +810,8 @@ player.Chatted:Connect(function(message)
         else
             warn("Please provide a name after -stats.")
         end
+    end
+end)
+
     end
 end)
