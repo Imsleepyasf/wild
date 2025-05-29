@@ -742,6 +742,38 @@ local function getPlayerFromPartialName(partialName)
     return nil
 end
 
+-- Extract number from text using keyword (like "Lvl" or "Prestige")
+local function extractNumberFromName(name, keyword)
+    local pattern = keyword .. "[^%d]*(%d+)"
+    local number = string.match(name, pattern)
+    return number
+end
+
+-- Searches descendants for Level or Prestige
+local function getStatByGuessing(folder, keyword)
+    for _, child in ipairs(folder:GetDescendants()) do
+        if string.lower(child.Name):find(keyword:lower()) then
+            if child:IsA("TextLabel") and child.Text then
+                local val = extractNumberFromName(child.Text, keyword)
+                if val then return val end
+            elseif child.Name then
+                local val = extractNumberFromName(child.Name, keyword)
+                if val then return val end
+            end
+        end
+    end
+    return "N/A"
+end
+
+-- Get value from folder safely
+local function getStatValue(folder, name)
+    local val = folder:FindFirstChild(name)
+    if val and (val:IsA("NumberValue") or val:IsA("IntValue") or val:IsA("DoubleConstrainedValue") or val:IsA("StringValue")) then
+        return val.Value
+    end
+    return "N/A"
+end
+
 -- Function to print another player's stats
 local function printPlayerStats(targetPlayer)
     local liveFolder = workspace:FindFirstChild("Live")
@@ -762,39 +794,50 @@ local function printPlayerStats(targetPlayer)
         return
     end
 
-    print("================== Stats for " .. targetPlayer.Name .. " ==================")
+    print("======================================================")
+    print("Name: " .. targetPlayer.Name)
 
-    -- Attempt to print Race
-    local raceValue = statsFolder:FindFirstChild("Race") or playerModel:FindFirstChild("Race")
-    if raceValue and raceValue:IsA("StringValue") then
-        print("Race: " .. raceValue.Value)
+    local raceVal = getStatValue(statsFolder, "Race")
+    if raceVal == "N/A" then
+        raceVal = getStatValue(playerModel, "Race")
     end
+    print("Race: " .. raceVal)
 
-    for _, stat in ipairs(statsFolder:GetChildren()) do
-        if stat:IsA("NumberValue") or stat:IsA("IntValue") or stat:IsA("DoubleConstrainedValue") then
-            print(stat.Name .. ": " .. stat.Value)
-        elseif stat:IsA("StringValue") then
-            print(stat.Name .. ": " .. stat.Value)
-        elseif stat:IsA("TextLabel") then
-            print(stat.Name .. ": " .. stat.Text)
-        else
-            print(stat.Name .. ": (no readable value)")
+    print("Level: " .. getStatByGuessing(playerModel, "Lvl"))
+    print("Prestige: " .. getStatByGuessing(playerModel, "Prestige"))
+
+    local statNames = {
+        ["Health-Max"] = "HP",
+        ["Ki-Max"] = "Ki Max",
+        ["Phys-Damage"] = "Phys Damage",
+        ["Ki-Damage"] = "Ki Damage",
+        ["Phys-Resist"] = "Phys Resistance",
+        ["Ki-Resist"] = "Ki Resistance",
+        ["Speed"] = "Speed"
+    }
+
+    local totalStats = 0
+
+    for internalName, displayName in pairs(statNames) do
+        local value = getStatValue(statsFolder, internalName)
+        print(displayName .. ": " .. value)
+        if typeof(value) == "number" then
+            totalStats += value
         end
     end
 
+    print("Total Stats = " .. totalStats)
     print("======================================================\n")
 end
 
 -- Debounce variables
 local lastCommandTime = 0
-local debounceTime = 1 -- seconds
+local debounceTime = 1
 
--- Listen for chat command: -stats <partial name>
+-- Chat command listener
 player.Chatted:Connect(function(message)
     local currentTime = tick()
-    if currentTime - lastCommandTime < debounceTime then
-        return -- ignore repeated commands too quickly
-    end
+    if currentTime - lastCommandTime < debounceTime then return end
     lastCommandTime = currentTime
 
     local lower = message:lower()
