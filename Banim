@@ -1,0 +1,37 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local animationId = "rbxassetid://1171558651"
+
+local function playAnimation(character)
+    if not character then return end
+    local humanoid = character:WaitForChild("Humanoid", 5)
+    if not humanoid then return end
+
+    -- Remove any old animator to avoid duplicates
+    local oldAnimator = humanoid:FindFirstChildOfClass("Animator")
+    if oldAnimator then
+        oldAnimator:Destroy()
+    end
+
+    local animator = Instance.new("Animator")
+    animator.Parent = humanoid
+
+    local anim = Instance.new("Animation")
+    anim.AnimationId = animationId
+
+    local track = animator:LoadAnimation(anim)
+    track.Looped = true
+    track:Play()
+
+    print("▶️ Playing looping animation on player")
+end
+
+-- Play on current character
+if player.Character then
+    playAnimation(player.Character)
+end
+
+-- Play again on respawn
+player.CharacterAdded:Connect(function(char)
+    playAnimation(char)
+end)
