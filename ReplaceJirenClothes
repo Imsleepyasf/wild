@@ -1,0 +1,15 @@
+local targetFolder = workspace.FriendlyNPCs.Jiren
+local newAssetId = "rbxassetid://245880330"
+
+-- Find and replace Shirt and Pants named exactly "Pride Troopers (Muscles) - Dragon Ball Super"
+for _, descendant in ipairs(targetFolder:GetDescendants()) do
+    if (descendant:IsA("Shirt") or descendant:IsA("Pants")) and descendant.Name == "Pride Troopers (Muscles) - Dragon Ball Super" then
+        if descendant:IsA("Shirt") then
+            descendant.ShirtTemplate = newAssetId
+            print("Replaced ShirtTemplate on:", descendant:GetFullName())
+        elseif descendant:IsA("Pants") then
+            descendant.PantsTemplate = newAssetId
+            print("Replaced PantsTemplate on:", descendant:GetFullName())
+        end
+    end
+end
