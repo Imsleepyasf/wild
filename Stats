@@ -1,0 +1,33 @@
+-- Replace with your image asset ID
+local newAssetId = "rbxassetid://84571786066805"
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Function to apply the image
+local function applyStatsImage()
+    local gui = player:WaitForChild("PlayerGui")
+    local hud = gui:WaitForChild("HUD")
+    local bottom = hud:WaitForChild("Bottom")
+    local stats = bottom:WaitForChild("Stats")
+
+    -- Apply the image if it's an ImageLabel
+    if stats:IsA("ImageLabel") then
+        stats.Image = newAssetId
+        stats.ImageTransparency = 0
+        print("✅ Stats image applied")
+    else
+        warn("⚠️ 'Stats' is not an ImageLabel.")
+    end
+end
+
+-- Run immediately
+applyStatsImage()
+
+-- On character respawn, reapply image as soon as GUI is ready
+player.CharacterAdded:Connect(function()
+    -- Wait for HUD/Bottom/Stats to exist again — no fixed delay
+    local gui = player:WaitForChild("PlayerGui")
+    gui:WaitForChild("HUD"):WaitForChild("Bottom"):WaitForChild("Stats")
+    applyStatsImage()
+end)
